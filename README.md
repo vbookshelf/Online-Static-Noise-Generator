@@ -9,7 +9,7 @@ https://noiseforsleep.com/
 - Generates static noise on the fly, therefore no looping and no clicking sound to disturb your sleep. 
 - Stream audio or generate custom duration WAV audio files for use offline.
 - Six noise options - white, pink brown, grey, green, ocean and fan.
-- If you want other noise types, simply download this code and use AI to modify the index.html file to generate your noise of choice.
+- If you want other noise types, simply download this code, then use AI to modify the index.html file to generate the noise type or colour you want.
 - Free and Open Source. No ads. No upselling. No paywalls. No tracking.
 
 <br>
