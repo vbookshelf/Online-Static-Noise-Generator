@@ -1,0 +1,1250 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noise for Sleep | Your shield against disturbing sounds</title>
+<meta name="description" content="Online static noise generator for sound masking. Helps with sleep and focus. Free. No ads.">
+<meta name="keywords" content="white noise generator, sleep sounds, pink noise, brown noise, grey noise, green noise, free white noise, noise for sleep, focus sounds, sleep aid, insomnia help, fan noise, ocean wave noise">
+<meta property="og:title" content="Noise for Sleep | Your shield against disturbing sounds">
+<meta property="og:description" content="Online static noise generator for sleep and focus. Free. No ads.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://noiseforsleep.com/">
+<meta property="og:image" content="https://noiseforsleep.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Noise for Sleep – free ambient noise generator for sleep and focus">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Noise for Sleep | Your shield against disturbing sounds">
+<meta name="twitter:description" content="Online static noise generator for sleep and focus. Free. No ads.">
+<meta name="twitter:image" content="https://noiseforsleep.com/og-image.png">
+<link rel="canonical" href="https://noiseforsleep.com/">
+
+<link rel="icon" type="image/png" href="favicon.png">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d0f14; --bg2: #141720; --bg3: #1c2030;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+  --text: #e8eaf0; --text2: #8b90a4; --text3: #555b70;
+  --accent: #5b8cff; --accent-dim: rgba(91,140,255,0.12); --accent-glow: rgba(91,140,255,0.25);
+  --white-col: #c8d4ff; --pink-col: #ffb3d1; --brown-col: #d4a87a;
+  --radius: 12px; --radius-sm: 8px;
+}
+body {
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 16px; line-height: 1.6; min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+header {
+  padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-icon {
+  width: 32px; height: 32px; background: var(--accent); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-text { font-size: 20px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+.logo-text span { color: var(--accent); }
+.hero { text-align: center; padding: 4rem 2rem 2rem; }
+.hero-eyebrow {
+  font-size: 13px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;
+}
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1rem;
+}
+.hero p { font-size: 18px; color: var(--text2); max-width: 480px; margin: 0 auto; }
+.player-wrap { padding: 2rem; display: flex; justify-content: center; }
+
+
+.player {
+  width: 100%; max-width: 420px; 
+  background: var(--bg2);
+  border: 1.5px solid rgba(91, 140, 255, 0.4); /* #5b8cff */
+  border-radius: 20px;        
+  overflow: hidden;
+  padding: 2rem; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: 1.75rem;
+}
+
+
+.noise-tabs {
+  display: flex; gap: 6px; background: var(--bg3);
+  padding: 4px; border-radius: var(--radius-sm); width: 100%; flex-wrap: wrap;
+}
+.noise-tab {
+  flex: 1; min-width: 56px; padding: 8px 4px; border: none; background: transparent;
+  border-radius: 6px; font-size: 14px; font-weight: 500;
+  color: var(--text2); cursor: pointer; transition: all 0.15s;
+}
+.noise-tab.active { background: var(--bg); border: 1px solid var(--border2); }
+.noise-tab[data-type="white"].active { color: var(--white-col); }
+.noise-tab[data-type="pink"].active  { color: var(--pink-col); }
+.noise-tab[data-type="brown"].active { color: var(--brown-col); }
+.noise-tab[data-type="grey"].active  { color: #c8ccd8; }
+.noise-tab[data-type="green"].active { color: #86efac; }
+.noise-tab[data-type="ocean"].active { color: #7dd3fc; }
+.noise-tab[data-type="fan"].active   { color: #fde68a; }
+.noise-tab:not(.active):hover { color: var(--text2); }
+.play-area { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+.play-btn {
+  width: 76px; height: 76px; border-radius: 50%;
+  border: 1.5px solid var(--border2); background: var(--bg3);
+  color: var(--text); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+.play-btn:hover { background: var(--bg); border-color: var(--accent); box-shadow: 0 0 0 6px var(--accent-glow); }
+.play-btn:active { transform: scale(0.95); }
+.play-btn.playing { border-color: var(--accent); background: var(--accent-dim); box-shadow: 0 0 0 6px var(--accent-glow); }
+.play-status { font-size: 12px; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; }
+.timer { font-size: 13px; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+.timer strong { font-size: 15px; font-weight: 600; color: var(--text); min-width: 48px; font-variant-numeric: tabular-nums; }
+.vol-row {
+  width: 100%; display: grid; grid-template-columns: 52px 1fr 38px; align-items: center; gap: 12px;
+}
+.vol-label { font-size: 14px; color: var(--text2); text-align: right; }
+.vol-val { font-size: 14px; font-weight: 600; color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 4px; background: var(--bg3); border-radius: 2px; outline: none; cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--accent); cursor: pointer; border: 2px solid var(--bg);
+  transition: box-shadow 0.15s;
+}
+input[type="range"]:hover::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--accent-glow); }
+input[type="range"]::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--bg); cursor: pointer;
+}
+.timer { display: flex; align-items: center; justify-content: center; }
+.timer strong { font-size: 36px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.sleep-section { width: 100%; border-top: 1px solid var(--border); padding-top: 1.25rem; display: flex; flex-direction: column; gap: 0.85rem; }
+.sleep-label { font-size: 14px; color: var(--text2); }
+.sleep-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.sleep-pill {
+  padding: 8px 18px; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 20px; font-size: 14px; color: var(--text2); cursor: pointer; transition: all 0.12s;
+}
+.sleep-pill:hover { border-color: var(--border2); color: var(--text); }
+.sleep-pill.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.sleep-slider-row { display: grid; grid-template-columns: 1fr 56px; align-items: center; gap: 10px; }
+.sleep-slider-val { font-size: 14px; font-weight: 600; color: var(--text); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.content { max-width: 680px; margin: 0 auto; padding: 3rem 2rem; display: flex; flex-direction: column; gap: 2rem; }
+.content h2 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
+.content p { font-size: 16px; color: var(--text2); line-height: 1.8; }
+.noise-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.noise-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.noise-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 0.4rem; }
+.noise-card p { font-size: 15px; color: var(--text2); line-height: 1.6; }
+.white-card h3 { color: var(--white-col); }
+.pink-card h3  { color: var(--pink-col); }
+.brown-card h3 { color: var(--brown-col); }
+footer {
+  margin-top: auto; padding: 1.5rem 2rem;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+}
+.footer-verse {
+  font-size: 15px; color: var(--text2); text-decoration: none;
+  font-style: italic; transition: color 0.15s;
+}
+/*.footer-verse:hover { color: var(--accent); }*/
+.footer-verse em { font-style: normal; font-weight: 600; }
+.footer-verse a {
+  color: inherit;
+  text-decoration: none;
+}
+@media (max-width: 540px) {
+  header { padding: 1rem; }
+    .hero { padding: 2.5rem 1.25rem 1rem; }
+  .player-wrap { padding: 1rem; }
+  footer { flex-direction: column; align-items: flex-start; }
+}
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+.skip-link {
+  position: absolute; top: -100%; left: 1rem; background: var(--accent); color: #fff;
+  padding: 8px 16px; border-radius: 0 0 8px 8px; font-size: 14px; font-weight: 600;
+  text-decoration: none; z-index: 100;
+}
+.skip-link:focus { top: 0; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 50%; }
+input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* ── Download section ── */
+.download-wrap { padding: 0 2rem 2rem; display: flex; justify-content: center; }
+.download-panel {
+  width: 100%; max-width: 420px;
+  background: var(--bg2);
+  border: 1.5px solid rgba(180, 120, 60, 0.5);
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  display: flex; flex-direction: column; gap: 1.25rem;
+}
+.download-header {
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border); padding-bottom: 1.25rem;
+}
+.download-header-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--accent-dim); border: 1px solid rgba(91,140,255,0.3);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.download-title { font-size: 15px; font-weight: 600; color: var(--text); }
+.download-sub   { font-size: 13px; color: var(--text2); }
+.dl-label { font-size: 13px; color: var(--text2); margin-bottom: 0.5rem; }
+.dl-dur-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.dl-dur-pill {
+  padding: 7px 14px; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 20px; font-size: 13px; color: var(--text2); cursor: pointer; transition: all 0.12s;
+}
+.dl-dur-pill:hover { border-color: var(--border2); color: var(--text); }
+.dl-dur-pill.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.dl-slider-row { display: grid; grid-template-columns: 1fr 52px; align-items: center; gap: 10px; margin-top: 8px; }
+.dl-slider-val { font-size: 13px; font-weight: 600; color: var(--text); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dl-size-hint { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.dl-progress { display: none; flex-direction: column; gap: 5px; }
+.dl-progress.visible { display: flex; }
+.dl-progress-bg { width: 100%; height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.dl-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 3px; transition: width 0.1s linear; }
+.dl-progress-label { font-size: 12px; color: var(--text2); text-align: center; }
+.dl-btn {
+  width: 100%; padding: 12px;
+  background: #2a54c4; color: #fff;
+  border: none; border-radius: var(--radius);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.dl-btn:hover { opacity: 0.88; }
+.dl-btn:active { transform: scale(0.98); }
+.dl-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.dl-note { font-size: 12px; color: var(--text3); line-height: 1.6; text-align: center; }
+@media (max-width: 540px) { .download-wrap { padding: 0 1rem 1.5rem; } }
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<header>
+  <a href="/" class="logo" aria-label="Noise for Sleep home">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M2 9 Q4.5 3 9 9 Q13.5 15 16 9" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <span class="logo-text">Noise for <span>Sleep</span></span>
+  </a>
+</header>
+
+<main id="main-content">
+  <section class="hero">
+	 
+	 <!--
+    <p class="hero-eyebrow">Free · No ads · Runs in your browser</p>
+     -->
+	<p class="hero-eyebrow">Online Static Noise Generator</p>
+   
+    <h1>Noise for sleep<br>& deep focus</h1>
+    <p>Your shield against disturbing sounds.<br>
+		Play audio online or download files for offline use.
+    </p>
+  </section>
+
+  <div class="player-wrap">
+    <div class="player">
+      <div class="noise-tabs" role="tablist" aria-label="Noise type">
+        <button class="noise-tab active" data-type="white" role="tab" aria-selected="true">White</button>
+        <button class="noise-tab" data-type="pink" role="tab" aria-selected="false">Pink</button>
+        <button class="noise-tab" data-type="brown" role="tab" aria-selected="false">Brown</button>
+        <button class="noise-tab" data-type="grey" role="tab" aria-selected="false">Grey</button>
+        <button class="noise-tab" data-type="green" role="tab" aria-selected="false">Green</button>
+		
+        <button class="noise-tab" data-type="ocean" role="tab" aria-selected="false">Ocean</button>
+        <button class="noise-tab" data-type="fan" role="tab" aria-selected="false">Fan</button>
+	   
+      </div>
+
+      <div class="play-area">
+        <button class="play-btn" id="playBtn" aria-label="Play white noise" aria-pressed="false">
+          <svg id="iconPlay" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="iconStop" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+        </button>
+      </div>
+
+      <div class="timer">
+        <strong id="timerDisp" role="status" aria-live="polite" aria-label="Timer: 0 minutes 0 seconds">0:00</strong>
+      </div>
+
+      <div class="vol-row">
+        <span class="vol-label">Volume</span>
+        <input type="range" id="volSlider" min="0" max="100" value="20" step="1" aria-label="Volume">
+        <span class="vol-val" id="volVal">20%</span>
+      </div>
+
+      <div class="sleep-section" aria-label="Timer settings">
+        <span class="sleep-label">Timer</span>
+        <div class="sleep-pills" role="group" aria-label="Timer presets">
+          <button class="sleep-pill active" data-mins="0">Off</button>
+		  
+          <!-- TEST PILL: comment out before launch -->
+		   <!-- 
+          <button class="sleep-pill" data-mins="1">1 min</button>
+		  -->
+          <!-- END TEST PILL -->
+		  
+          <button class="sleep-pill" data-mins="30">30 min</button>
+          <button class="sleep-pill" data-mins="60">1 hr</button>
+          <button class="sleep-pill" data-mins="600">10 hr</button>
+        </div>
+        <div class="sleep-slider-row">
+          <input type="range" id="timerSlider" min="0" max="600" value="0" step="1"
+            aria-label="Timer duration in minutes" aria-valuetext="Off">
+          <span class="sleep-slider-val" id="timerSliderVal">Off</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Download as file ── -->
+  <div class="download-wrap">
+    <div class="download-panel" id="dlPanel">
+
+      <div class="download-header">
+        <div class="download-header-icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </div>
+        <div>
+          <div class="download-title">Download audio file</div>
+          <div class="download-sub">Generate a WAV file to use offline</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="dl-label">Noise type</div>
+        <div class="noise-tabs" id="dlNoiseTabs" role="tablist" aria-label="Download noise type">
+          <button class="noise-tab active" data-type="white" role="tab" aria-selected="true">White</button>
+          <button class="noise-tab" data-type="pink"  role="tab" aria-selected="false">Pink</button>
+          <button class="noise-tab" data-type="brown" role="tab" aria-selected="false">Brown</button>
+          <button class="noise-tab" data-type="grey"  role="tab" aria-selected="false">Grey</button>
+          <button class="noise-tab" data-type="green" role="tab" aria-selected="false">Green</button>
+          <button class="noise-tab" data-type="ocean" role="tab" aria-selected="false">Ocean</button>
+          <button class="noise-tab" data-type="fan"   role="tab" aria-selected="false">Fan</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="dl-label">Duration</div>
+        <div class="dl-dur-pills" id="dlDurPills" role="group" aria-label="Duration presets">
+          <button class="dl-dur-pill" data-mins="15">15 min</button>
+          <button class="dl-dur-pill" data-mins="30">30 min</button>
+          <button class="dl-dur-pill active" data-mins="60">1 hr</button>
+          <button class="dl-dur-pill" data-mins="600">10 hr</button>
+        </div>
+        <div class="dl-slider-row">
+          <input type="range" id="dlDurSlider" min="1" max="600" step="1" value="60" aria-label="Custom duration in minutes">
+          <span class="dl-slider-val" id="dlDurVal">1 hr</span>
+        </div>
+        <div class="dl-size-hint" id="dlSizeHint">Estimated file size: ~84 MB</div>
+      </div>
+
+      <div class="dl-progress" id="dlProgress">
+        <div class="dl-progress-bg"><div class="dl-progress-bar" id="dlProgressBar"></div></div>
+        <div class="dl-progress-label" id="dlProgressLabel">Generating&hellip;</div>
+      </div>
+
+      <button class="dl-btn" id="dlBtn" aria-label="Generate and download WAV file">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Generate &amp; download WAV
+      </button>
+
+      <p class="dl-note">Generated entirely in your browser &mdash; nothing is uploaded. Large files (10 hr) may take up to a minute to process.</p>
+
+    </div>
+  </div>
+
+  <section class="content">
+    
+	
+    <div>
+      <h2>Why use a noise generator for sleep?</h2>
+      <p>Ambient noise, like a whirring fan, is effective at masking disturbing sounds that can keep you from falling asleep or wake you up. Unlike music, ambient noise has no melody to engage your brain, so it fades into the background while you drift off.</p>
+	</div>
+	
+	
+	<div>
+      <h2>Which noise type is right for you?</h2>
+      <p>Not all noise is created equal. Each color has a different spectral balance that affects how your brain perceives it.</p>
+    </div>
+    <div class="noise-grid">
+      <div class="noise-card white-card">
+        <h3>White noise</h3>
+        <p>Equal energy across all frequencies. Great for blocking distractions and masking office sounds.</p>
+      </div>
+      <div class="noise-card pink-card">
+        <h3>Pink noise</h3>
+        <p>More bass, less hiss. Studies suggest pink noise may improve deep sleep and memory retention.</p>
+      </div>
+      <div class="noise-card brown-card">
+        <h3>Brown noise</h3>
+        <p>Deep rumble similar to heavy rain or thunder. Many find it the most soothing for falling asleep.</p>
+      </div>
+    </div>
+	  
+	  
+	<div>
+	  <h2>How to use</h2>
+      <p>Select a noise type, press play, and adjust the volume. Please note that the player's volume slider works independently from your device's physical volume buttons. For best results keep the player slider high and use your device's hardware buttons to control the loudness. The sound will keep playing when your screen locks. Works on both mobile and PC. You can also download custom duration audio files to use offline.</p>
+    </div>
+	
+	<div>
+	  <h2>Safety note</h2>
+	 <p>Listening to continuous noise through earphones can cause hearing fatigue or damage if the volume is too high. As an alternative to earphones, use the built-in speaker on your phone or laptop, or connect to an external speaker.</p>
+    </div>
+  </section>
+</main>
+
+
+<footer>
+  <div class="footer-verse">
+    <p>...he grants sleep to those he loves. <em>Psalm 127:2</em></p>
+    <p>A <a href="https://fivejc.com/" target="_blank" rel="noopener noreferrer"><em>fiveJC</em></a> ministry project.</p>
+  </div>
+</footer>
+
+
+
+<script>
+(function () {
+  var audioCtx, gainNode, sourceNode;
+  var extraNodes = [];
+  var playing = false, noiseType = 'white', sleepMins = 0;
+  var timerInt = null;
+
+  // Silent audio trick to prevent browser context from suspending on lock/background
+  var silentAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAAgAAgAAAAAABAAZGF0YQQAAAAAAA==');
+  silentAudio.loop = true;
+  silentAudio.setAttribute('playsinline', '');
+
+  var playBtn    = document.getElementById('playBtn');
+  var iconPlay   = document.getElementById('iconPlay');
+  var iconStop   = document.getElementById('iconStop');
+  var timerDisp    = document.getElementById('timerDisp');
+  var timerSlider  = document.getElementById('timerSlider');
+  var timerSliderVal = document.getElementById('timerSliderVal');
+  var volSlider  = document.getElementById('volSlider');
+  var volVal     = document.getElementById('volVal');
+
+  function fmt(s) {
+    var h = Math.floor(s / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    var sec = s % 60;
+    var ss = (sec < 10 ? '0' : '') + sec;
+    var mm = (m < 10 && h > 0 ? '0' : '') + m;
+    if (h > 0) return h + ':' + mm + ':' + ss;
+    return m + ':' + ss;
+  }
+
+  function fmtFromMins(mins) {
+    if (mins === 0) return '0:00';
+    return fmt(mins * 60);
+  }
+
+  function fmtTimer(mins) {
+    if (mins === 0) return 'Off';
+    if (mins < 60) return mins + ' min';
+    var h = Math.floor(mins / 60), m = mins % 60;
+    return m === 0 ? h + ' hr' : h + 'h ' + m + 'm';
+  }
+
+  function setTimerDisp(text) {
+    timerDisp.textContent = text;
+    timerDisp.setAttribute('aria-label', 'Timer: ' + text);
+  }
+
+  function buildBuffer(type) {
+    var rate = audioCtx.sampleRate;
+    var i;
+
+    if (type === 'white') {
+      // White noise: every sample is independent — no filter state, no drift.
+      // The loop join is statistically seamless; no detrend needed.
+      var len = rate * 4;
+      var buf = audioCtx.createBuffer(1, len, rate);
+      var d   = buf.getChannelData(0);
+      for (i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      return buf;
+    }
+
+    if (type === 'pink') {
+      // Pink noise uses an IIR filter whose state drifts, so first and last
+      // samples of a short buffer are rarely close — audible click every loop.
+      // Fix: 120-second buffer + linear detrend for a sample-perfect loop join.
+      var pLen = rate * 120;
+      var pRaw = new Float32Array(pLen);
+      var pb0=0,pb1=0,pb2=0,pb3=0,pb4=0,pb5=0,pb6=0, pw;
+      for (i = 0; i < pLen; i++) {
+        pw = Math.random() * 2 - 1;
+        pb0=0.99886*pb0+pw*0.0555179; pb1=0.99332*pb1+pw*0.0750759;
+        pb2=0.96900*pb2+pw*0.1538520; pb3=0.86650*pb3+pw*0.3104856;
+        pb4=0.55000*pb4+pw*0.5329522; pb5=-0.7616*pb5-pw*0.0168980;
+        pRaw[i] = (pb0+pb1+pb2+pb3+pb4+pb5+pb6+pw*0.5362)*0.11;
+        pb6 = pw*0.115926;
+      }
+      var pSlope = (pRaw[pLen - 1] - pRaw[0]) / pLen;
+      for (i = 0; i < pLen; i++) pRaw[i] -= pSlope * i;
+      var pBuf = audioCtx.createBuffer(1, pLen, rate);
+      var pd = pBuf.getChannelData(0);
+      var pPeak = 0;
+      for (i = 0; i < pLen; i++) { pd[i] = pRaw[i]; if (Math.abs(pRaw[i]) > pPeak) pPeak = Math.abs(pRaw[i]); }
+      if (pPeak > 0) for (i = 0; i < pLen; i++) pd[i] = pd[i] / pPeak * 0.85;
+      return pBuf;
+    }
+
+    // brown (default)
+    // Seamless technique: linear detrending — subtract a straight ramp from
+    // rawBuf[0] to rawBuf[N-1] so first and last sample become identical.
+    // No taper, no fade, no crossfade — zero discontinuity at the join.
+    var brownLen = rate * 120; // 120-second buffer: loop every 2 minutes
+    var blp1 = 0, blp2 = 0, blp3 = 0, blpA = 0.92, bLast = 0, bw, bRaw2;
+    var rawBuf = new Float32Array(brownLen);
+
+    // Pre-warm integrator + filters for 0.5s
+    var warmup = Math.floor(rate * 0.5);
+    for (i = 0; i < warmup; i++) {
+      bw = Math.random() * 2 - 1;
+      bLast = (bLast + 0.006 * bw) / 1.006;
+      bRaw2 = bLast * 8.0;
+      blp1 = blpA * blp1 + (1 - blpA) * bRaw2;
+      blp2 = blpA * blp2 + (1 - blpA) * blp1;
+      blp3 = blpA * blp3 + (1 - blpA) * blp2;
+    }
+
+    // Generate full buffer
+    for (i = 0; i < brownLen; i++) {
+      bw = Math.random() * 2 - 1;
+      bLast = (bLast + 0.006 * bw) / 1.006;
+      bRaw2 = bLast * 8.0;
+      blp1 = blpA * blp1 + (1 - blpA) * bRaw2;
+      blp2 = blpA * blp2 + (1 - blpA) * blp1;
+      blp3 = blpA * blp3 + (1 - blpA) * blp2;
+      rawBuf[i] = blp3;
+    }
+
+    // Linear detrend: subtract a ramp so rawBuf[0] === rawBuf[brownLen-1].
+    var detrSlope = (rawBuf[brownLen - 1] - rawBuf[0]) / brownLen;
+    for (i = 0; i < brownLen; i++) rawBuf[i] -= detrSlope * i;
+
+    // Copy into AudioBuffer and normalise
+    var brownBuf = audioCtx.createBuffer(1, brownLen, rate);
+    var bd = brownBuf.getChannelData(0);
+    var bPeak = 0;
+    for (i = 0; i < brownLen; i++) { bd[i] = rawBuf[i]; if (Math.abs(rawBuf[i]) > bPeak) bPeak = Math.abs(rawBuf[i]); }
+    if (bPeak > 0) for (i = 0; i < brownLen; i++) bd[i] = bd[i] / bPeak * 0.85;
+    return brownBuf;
+  }
+
+  function buildNoiseSource(type) {
+    var src = audioCtx.createBufferSource();
+    extraNodes = [];
+
+    if (type === 'grey') {
+      // Grey noise = pink-filtered noise shaped to equal perceived loudness (ITU-R 468 curve).
+      // Seamless looping: same linear-detrend technique as brown noise — subtracts a ramp so
+      // the first and last samples are identical, giving zero discontinuity at the loop join.
+      // 120-second buffer means the loop repeats every ~2 minutes: completely inaudible.
+      var greyRate = audioCtx.sampleRate;
+      var greyLen  = greyRate * 120; // 120-second buffer — loop join inaudible in practice
+      var greyRaw  = new Float32Array(greyLen);
+
+      // Generate pink-filtered white noise into greyRaw
+      // (pink filter gives a perceptually flatter base than raw white before EQ shaping)
+      var gb0=0,gb1=0,gb2=0,gb3=0,gb4=0,gb5=0,gb6=0, gw;
+      for (var gi = 0; gi < greyLen; gi++) {
+        gw = Math.random() * 2 - 1;
+        gb0=0.99886*gb0+gw*0.0555179; gb1=0.99332*gb1+gw*0.0750759;
+        gb2=0.96900*gb2+gw*0.1538520; gb3=0.86650*gb3+gw*0.3104856;
+        gb4=0.55000*gb4+gw*0.5329522; gb5=-0.7616*gb5-gw*0.0168980;
+        greyRaw[gi] = (gb0+gb1+gb2+gb3+gb4+gb5+gb6+gw*0.5362)*0.11;
+        gb6 = gw*0.115926;
+      }
+
+      // Linear detrend: subtract a ramp so greyRaw[0] === greyRaw[greyLen-1].
+      // This makes the loop join sample-perfect — no click, no crossfade needed.
+      var greySlope = (greyRaw[greyLen - 1] - greyRaw[0]) / greyLen;
+      for (var gj = 0; gj < greyLen; gj++) greyRaw[gj] -= greySlope * gj;
+
+      // Copy into AudioBuffer and peak-normalise
+      var greyBuf = audioCtx.createBuffer(1, greyLen, greyRate);
+      var gd = greyBuf.getChannelData(0);
+      var gPeak = 0;
+      for (var gk = 0; gk < greyLen; gk++) { gd[gk] = greyRaw[gk]; if (Math.abs(greyRaw[gk]) > gPeak) gPeak = Math.abs(greyRaw[gk]); }
+      if (gPeak > 0) for (var gl = 0; gl < greyLen; gl++) gd[gl] = gd[gl] / gPeak * 0.85;
+
+      src.buffer = greyBuf; src.loop = true;
+
+      // Perceptual EQ shaping: cut harsh mids, lift lows and air
+      var midCut   = audioCtx.createBiquadFilter(); midCut.type = 'peaking';   midCut.frequency.value = 2000; midCut.gain.value = -10; midCut.Q.value = 0.7;
+      var lowShelf = audioCtx.createBiquadFilter(); lowShelf.type = 'lowshelf'; lowShelf.frequency.value = 200; lowShelf.gain.value = 6;
+      var highShelf= audioCtx.createBiquadFilter(); highShelf.type = 'highshelf';highShelf.frequency.value = 6000; highShelf.gain.value = 5;
+      var outG     = audioCtx.createGain(); outG.gain.value = 1.2;
+      src.connect(midCut); midCut.connect(lowShelf); lowShelf.connect(highShelf); highShelf.connect(outG);
+      extraNodes = [midCut, lowShelf, highShelf, outG];
+      return { entry: src, exit: outG };
+    }
+
+    if (type === 'green') {
+      src.buffer = buildBuffer('pink'); src.loop = true;
+      var bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 500; bp.Q.value = 0.6;
+      var outG = audioCtx.createGain(); outG.gain.value = 3.0;
+      src.connect(bp); bp.connect(outG);
+      extraNodes = [bp, outG];
+      return { entry: src, exit: outG };
+    }
+
+    if (type === 'ocean') {
+      src.buffer = buildBuffer('brown'); src.loop = true;
+      var lp = audioCtx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 400; lp.Q.value = 0.8;
+      var lfo = audioCtx.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.12;
+      var lfoGain = audioCtx.createGain(); lfoGain.gain.value = 0.5;
+      var waveGain = audioCtx.createGain(); waveGain.gain.value = 0.5;
+      lfo.connect(lfoGain); lfoGain.connect(waveGain.gain); lfo.start();
+      src.connect(lp); lp.connect(waveGain);
+      extraNodes = [lp, lfo, lfoGain, waveGain];
+      return { entry: src, exit: waveGain };
+    }
+
+    if (type === 'fan') {
+      var h1 = audioCtx.createOscillator(); h1.type = 'sine'; h1.frequency.value = 62;
+      var h1g = audioCtx.createGain(); h1g.gain.value = 0.12; h1.connect(h1g); h1.start();
+      var h2 = audioCtx.createOscillator(); h2.type = 'sine'; h2.frequency.value = 124;
+      var h2g = audioCtx.createGain(); h2g.gain.value = 0.08; h2.connect(h2g); h2.start();
+      var h3 = audioCtx.createOscillator(); h3.type = 'sine'; h3.frequency.value = 186;
+      var h3g = audioCtx.createGain(); h3g.gain.value = 0.05; h3.connect(h3g); h3.start();
+      var breathLfo = audioCtx.createOscillator(); breathLfo.type = 'sine'; breathLfo.frequency.value = 0.04;
+      var breathDepth = audioCtx.createGain(); breathDepth.gain.value = 0.05;
+      var humMix = audioCtx.createGain(); humMix.gain.value = 0.95;
+      breathLfo.connect(breathDepth); breathDepth.connect(humMix.gain); breathLfo.start();
+      h1g.connect(humMix); h2g.connect(humMix); h3g.connect(humMix);
+      var airSrc = audioCtx.createBufferSource(); airSrc.buffer = buildBuffer('pink'); airSrc.loop = true;
+      var airBp = audioCtx.createBiquadFilter(); airBp.type = 'bandpass'; airBp.frequency.value = 240; airBp.Q.value = 0.5;
+      var airLp = audioCtx.createBiquadFilter(); airLp.type = 'lowpass'; airLp.frequency.value = 700; airLp.Q.value = 0.5;
+      var airGain = audioCtx.createGain(); airGain.gain.value = 0.9;
+      airSrc.connect(airBp); airBp.connect(airLp); airLp.connect(airGain); airSrc.start();
+      var mixGain = audioCtx.createGain(); mixGain.gain.value = 1.5;
+      humMix.connect(mixGain); airGain.connect(mixGain);
+      src.buffer = buildBuffer('brown'); src.loop = true;
+      extraNodes = [h1, h1g, h2, h2g, h3, h3g, breathLfo, breathDepth, humMix, airSrc, airBp, airLp, airGain, mixGain];
+      return { entry: src, exit: mixGain };
+    }
+
+    src.buffer = buildBuffer(type);
+    src.loop = true;
+    return { entry: src, exit: src };
+  }
+
+  function startNoise() {
+    audioCtx     = new (window.AudioContext || window.webkitAudioContext)();
+    gainNode     = audioCtx.createGain();
+    gainNode.gain.value = volSlider.value / 100;
+
+    var chain = buildNoiseSource(noiseType);
+    sourceNode = chain.entry;
+    chain.exit.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    sourceNode.start();
+
+    // Trigger silent audio to signal active media playback to iOS/Android OS
+    silentAudio.play().catch(function(err) {
+      console.warn('Silent audio play failed:', err);
+    });
+  }
+
+  function stopNoise() {
+    if (sourceNode)   { try { sourceNode.stop(); } catch(e){} sourceNode = null; }
+    extraNodes.forEach(function(n) { try { n.disconnect(); if (n.stop) n.stop(); } catch(e){} });
+    extraNodes = [];
+    if (gainNode)     { gainNode.disconnect();     gainNode = null; }
+    if (audioCtx)     { audioCtx.close();          audioCtx = null; }
+
+    // Pause silent audio when stopped
+    try {
+      silentAudio.pause();
+      silentAudio.currentTime = 0;
+    } catch(e) {}
+  }
+
+  function setPlaying(on) {
+    playing = on;
+    if (on) {
+      iconPlay.style.display  = 'none';
+      iconStop.style.display  = 'block';
+      playBtn.classList.add('playing');
+      playBtn.setAttribute('aria-label', 'Pause');
+    } else {
+      iconPlay.style.display  = 'block';
+      iconStop.style.display  = 'none';
+      playBtn.classList.remove('playing');
+      playBtn.setAttribute('aria-label', 'Play ' + noiseType + ' noise');
+    }
+  }
+
+  function startCountdown() {
+    clearInterval(timerInt);
+    if (sleepMins > 0) {
+      var remaining = sleepMins * 60;
+      setTimerDisp(fmt(remaining));
+      timerInt = setInterval(function () {
+        remaining--;
+        setTimerDisp(fmt(remaining));
+        if (remaining <= 0) {
+          clearInterval(timerInt);
+          stopNoise(); setPlaying(false);
+          setTimerDisp(fmtFromMins(sleepMins));
+        }
+      }, 1000);
+    } else {
+      var elapsed = 0;
+      setTimerDisp('0:00');
+      timerInt = setInterval(function () {
+        elapsed++;
+        setTimerDisp(fmt(elapsed));
+      }, 1000);
+    }
+  }
+
+  playBtn.addEventListener('click', function () {
+    if (!playing) {
+      startNoise();
+      setPlaying(true);
+      startCountdown();
+    } else {
+      stopNoise(); setPlaying(false);
+      clearInterval(timerInt);
+      setTimerDisp(fmtFromMins(sleepMins));
+    }
+  });
+
+  document.querySelectorAll('.noise-tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.noise-tab').forEach(function (b) {
+        b.classList.remove('active'); b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
+      noiseType = btn.dataset.type;
+      playBtn.setAttribute('aria-label', playing ? 'Stop' : 'Play ' + noiseType + ' noise');
+      if (playing) { stopNoise(); startNoise(); }
+    });
+  });
+
+  volSlider.addEventListener('input', function () {
+    volVal.textContent = volSlider.value + '%';
+    if (gainNode) gainNode.gain.value = volSlider.value / 100;
+  });
+
+  function applyTimer(mins, skipSlider, skipPills) {
+    sleepMins = mins;
+    if (!skipSlider) {
+      timerSlider.value = mins;
+      timerSliderVal.textContent = fmtTimer(mins);
+      timerSlider.setAttribute('aria-valuetext', fmtTimer(mins));
+    }
+    if (!skipPills) {
+      document.querySelectorAll('.sleep-pill').forEach(function (b) {
+        b.classList.toggle('active', parseInt(b.dataset.mins, 10) === mins);
+      });
+    }
+    if (!playing) {
+      setTimerDisp(fmtFromMins(mins));
+    } else {
+      startCountdown();
+    }
+  }
+
+  document.querySelectorAll('.sleep-pill').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      applyTimer(parseInt(btn.dataset.mins, 10), false, false);
+    });
+  });
+
+  timerSlider.addEventListener('input', function () {
+    var mins = parseInt(timerSlider.value, 10);
+    timerSliderVal.textContent = fmtTimer(mins);
+    timerSlider.setAttribute('aria-valuetext', fmtTimer(mins));
+    document.querySelectorAll('.sleep-pill').forEach(function (b) {
+      b.classList.toggle('active', parseInt(b.dataset.mins, 10) === mins);
+    });
+    applyTimer(mins, true, true);
+  });
+
+  // Resume Web Audio Context if browser resumes page visibility
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && playing && audioCtx) {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(function(err) {
+          console.warn('Failed to resume AudioContext:', err);
+        });
+      }
+    }
+  });
+}());
+</script>
+
+<!-- ── Download generator — fully isolated IIFE, no shared state with player ── -->
+<script>
+(function () {
+  var dlNoiseType   = 'white';
+  var dlDurationMins = 60;
+
+  var dlPanel       = document.getElementById('dlPanel');
+  var dlNoiseTabs   = document.getElementById('dlNoiseTabs');
+  var dlDurSlider   = document.getElementById('dlDurSlider');
+  var dlDurVal      = document.getElementById('dlDurVal');
+  var dlSizeHint    = document.getElementById('dlSizeHint');
+  var dlProgress    = document.getElementById('dlProgress');
+  var dlProgressBar = document.getElementById('dlProgressBar');
+  var dlProgressLbl = document.getElementById('dlProgressLabel');
+  var dlBtn         = document.getElementById('dlBtn');
+
+  function fmtMins(m) {
+    if (m < 60) return m + ' min';
+    var h = Math.floor(m / 60), r = m % 60;
+    return r === 0 ? h + ' hr' : h + 'h ' + r + 'm';
+  }
+
+  function estMB(mins) {
+    return Math.round(mins * 60 * 44100 * 2 / (1024 * 1024));
+  }
+
+  function syncDuration(mins, skipSlider) {
+    dlDurationMins = mins;
+    dlDurVal.textContent  = fmtMins(mins);
+    dlSizeHint.textContent = 'Estimated file size: ~' + estMB(mins) + ' MB';
+    if (!skipSlider) dlDurSlider.value = mins;
+    dlPanel.querySelectorAll('.dl-dur-pill').forEach(function (b) {
+      b.classList.toggle('active', parseInt(b.dataset.mins, 10) === mins);
+    });
+  }
+
+  dlNoiseTabs.querySelectorAll('.noise-tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      dlNoiseTabs.querySelectorAll('.noise-tab').forEach(function (b) {
+        b.classList.remove('active'); b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
+      dlNoiseType = btn.dataset.type;
+    });
+  });
+
+  document.getElementById('dlDurPills').querySelectorAll('.dl-dur-pill').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      syncDuration(parseInt(btn.dataset.mins, 10), false);
+    });
+  });
+
+  dlDurSlider.addEventListener('input', function () {
+    syncDuration(parseInt(dlDurSlider.value, 10), true);
+  });
+
+  syncDuration(60, false);
+
+  // ── Stateful noise synthesis ──────────────────────────────────────────────
+
+  function makeState(type, sampleRate) {
+    if (type === 'white') return { type: 'white' };
+
+    if (type === 'pink')
+      return { type: 'pink', b0:0,b1:0,b2:0,b3:0,b4:0,b5:0,b6:0 };
+
+    if (type === 'grey') {
+      var stG = {
+        type: 'grey',
+        b0:0,b1:0,b2:0,b3:0,b4:0,b5:0,b6:0,
+        // midCut (peaking: 2000 Hz, Q=0.7, gain=-10 dB)
+        mcX1:0, mcX2:0, mcY1:0, mcY2:0,
+        // lowShelf (lowshelf: 200 Hz, gain=6 dB)
+        lsX1:0, lsX2:0, lsY1:0, lsY2:0,
+        // highShelf (highshelf: 6000 Hz, gain=5 dB)
+        hsX1:0, hsX2:0, hsY1:0, hsY2:0
+      };
+
+      // --- Calculate midCut (peaking EQ) coefficients ---
+      var mcF = 2000 / sampleRate;
+      var mcW = 2 * Math.PI * mcF;
+      var mcA = Math.pow(10, -10 / 40);
+      var mcAlpha = Math.sin(mcW) / (2 * 0.7);
+      var mcCos = Math.cos(mcW);
+      var mcA0 = 1 + mcAlpha / mcA;
+      stG.mcB0 = (1 + mcAlpha * mcA) / mcA0;
+      stG.mcB1 = (-2 * mcCos) / mcA0;
+      stG.mcB2 = (1 - mcAlpha * mcA) / mcA0;
+      stG.mcA1 = (-2 * mcCos) / mcA0;
+      stG.mcA2 = (1 - mcAlpha / mcA) / mcA0;
+
+      // --- Calculate lowShelf coefficients ---
+      var lsF = 200 / sampleRate;
+      var lsW = 2 * Math.PI * lsF;
+      var lsA = Math.pow(10, 6 / 40);
+      var lsAlpha = Math.sin(lsW) / Math.sqrt(2); // S=1
+      var lsCos = Math.cos(lsW);
+      var lsSqrtA2 = 2 * Math.sqrt(lsA) * lsAlpha;
+      var lsA0 = (lsA + 1) + (lsA - 1) * lsCos + lsSqrtA2;
+      stG.lsB0 = (lsA * ((lsA + 1) - (lsA - 1) * lsCos + lsSqrtA2)) / lsA0;
+      stG.lsB1 = (2 * lsA * ((lsA - 1) - (lsA + 1) * lsCos)) / lsA0;
+      stG.lsB2 = (lsA * ((lsA + 1) - (lsA - 1) * lsCos - lsSqrtA2)) / lsA0;
+      stG.lsA1 = (-2 * ((lsA - 1) + (lsA + 1) * lsCos)) / lsA0;
+      stG.lsA2 = ((lsA + 1) + (lsA - 1) * lsCos - lsSqrtA2) / lsA0;
+
+      // --- Calculate highShelf coefficients ---
+      var hsF = 6000 / sampleRate;
+      var hsW = 2 * Math.PI * hsF;
+      var hsA = Math.pow(10, 5 / 40);
+      var hsAlpha = Math.sin(hsW) / Math.sqrt(2); // S=1
+      var hsCos = Math.cos(hsW);
+      var hsSqrtA2 = 2 * Math.sqrt(hsA) * hsAlpha;
+      var hsA0 = (hsA + 1) - (hsA - 1) * hsCos + hsSqrtA2;
+      stG.hsB0 = (hsA * ((hsA + 1) + (hsA - 1) * hsCos + hsSqrtA2)) / hsA0;
+      stG.hsB1 = (-2 * hsA * ((hsA - 1) + (hsA + 1) * hsCos)) / hsA0;
+      stG.hsB2 = (hsA * ((hsA + 1) + (hsA - 1) * hsCos - hsSqrtA2)) / hsA0;
+      stG.hsA1 = (2 * ((hsA - 1) - (hsA + 1) * hsCos)) / hsA0;
+      stG.hsA2 = ((hsA + 1) - (hsA - 1) * hsCos - hsSqrtA2) / hsA0;
+
+      return stG;
+    }
+
+    if (type === 'brown') {
+      var st = { type:'brown', last:0, lp1:0, lp2:0, lp3:0, a:0.92 };
+      for (var i = 0, w = Math.floor(sampleRate * 0.5); i < w; i++) {
+        var bw = Math.random() * 2 - 1;
+        st.last = (st.last + 0.006 * bw) / 1.006;
+        var r = st.last * 8;
+        st.lp1 = st.a*st.lp1+(1-st.a)*r;
+        st.lp2 = st.a*st.lp2+(1-st.a)*st.lp1;
+        st.lp3 = st.a*st.lp3+(1-st.a)*st.lp2;
+      }
+      return st;
+    }
+
+    if (type === 'ocean') {
+      // Low-pass filtered brown noise with a slow sinusoidal amplitude envelope
+      // approximating ocean waves. LFO encoded as a running phase counter.
+      var stO = { type:'ocean', last:0, lp1:0, lp2:0, lp3:0, a:0.92,
+                  lpfX1:0, lpfX2:0, lpfY1:0, lpfY2:0, lfoPhase:0 };
+      // Warm-up brown integrator
+      for (var wi = 0, ww = Math.floor(sampleRate * 0.5); wi < ww; wi++) {
+        var wb = Math.random() * 2 - 1;
+        stO.last = (stO.last + 0.006 * wb) / 1.006;
+        var wr = stO.last * 8;
+        stO.lp1 = stO.a*stO.lp1+(1-stO.a)*wr;
+        stO.lp2 = stO.a*stO.lp2+(1-stO.a)*stO.lp1;
+        stO.lp3 = stO.a*stO.lp3+(1-stO.a)*stO.lp2;
+      }
+      // Low-pass biquad at 400 Hz, Q=0.8
+      var fc = 400/sampleRate, omega = 2*Math.PI*fc, alpha = Math.sin(omega)/(2*0.8), cosw = Math.cos(omega);
+      var a0 = 1+alpha;
+      stO.lpB0=(1-cosw)/(2*a0); stO.lpB1=(1-cosw)/a0; stO.lpB2=stO.lpB0;
+      stO.lpA1=-2*cosw/a0; stO.lpA2=(1-alpha)/a0;
+      stO.lfoInc = 2*Math.PI*0.12/sampleRate; // 0.12 Hz wave cycle
+      return stO;
+    }
+
+    if (type === 'fan') {
+      // Sine harmonics (62, 124, 186 Hz) + bandpass-filtered pink noise
+      // State: phase accumulators for each harmonic, pink filter state, bp filter state
+      var stF = { type:'fan',
+        ph1:0, ph2:0, ph3:0,
+        phInc1: 2*Math.PI*62/sampleRate,
+        phInc2: 2*Math.PI*124/sampleRate,
+        phInc3: 2*Math.PI*186/sampleRate,
+        b0:0,b1:0,b2:0,b3:0,b4:0,b5:0,b6:0,
+        bpX1:0,bpX2:0,bpY1:0,bpY2:0,
+        lpX1:0,lpX2:0,lpY1:0,lpY2:0
+      };
+      // Bandpass at 240 Hz, Q=0.5
+      var bpFc=240/sampleRate, bpOmega=2*Math.PI*bpFc, bpAlpha=Math.sin(bpOmega)/(2*0.5), bpCosw=Math.cos(bpOmega);
+      var bpA0=1+bpAlpha;
+      stF.bpB0=bpAlpha/bpA0; stF.bpB1=0; stF.bpB2=-bpAlpha/bpA0;
+      stF.bpA1=-2*bpCosw/bpA0; stF.bpA2=(1-bpAlpha)/bpA0;
+      // Low-pass at 700 Hz, Q=0.5
+      var lpFc=700/sampleRate, lpOmega=2*Math.PI*lpFc, lpAlpha=Math.sin(lpOmega)/(2*0.5), lpCosw=Math.cos(lpOmega);
+      var lpA0=1+lpAlpha;
+      stF.lpB0=(1-lpCosw)/(2*lpA0); stF.lpB1=(1-lpCosw)/lpA0; stF.lpB2=stF.lpB0;
+      stF.lpA1=-2*lpCosw/lpA0; stF.lpA2=(1-lpAlpha)/lpA0;
+      return stF;
+    }
+
+    if (type === 'green') {
+      var fc2=500/sampleRate, q2=0.6, omega2=2*Math.PI*fc2, alpha2=Math.sin(omega2)/(2*q2), cosw2=Math.cos(omega2), a02=1+alpha2;
+      return { type:'green', b0:0,b1:0,b2:0,b3:0,b4:0,b5:0,b6:0,
+               x1:0,x2:0,y1:0,y2:0,
+               bf0:alpha2/a02, bf2:-alpha2/a02, a1f:-2*cosw2/a02, a2f:(1-alpha2)/a02 };
+    }
+
+    return { type:'white' };
+  }
+
+  function fillChunk(buf, st) {
+    var i, n = buf.length;
+
+    if (st.type === 'white') {
+      for (i = 0; i < n; i++) buf[i] = Math.random() * 2 - 1;
+      return;
+    }
+
+    if (st.type === 'pink') {
+      for (i = 0; i < n; i++) {
+        var w = Math.random() * 2 - 1;
+        st.b0=0.99886*st.b0+w*0.0555179; st.b1=0.99332*st.b1+w*0.0750759;
+        st.b2=0.96900*st.b2+w*0.1538520; st.b3=0.86650*st.b3+w*0.3104856;
+        st.b4=0.55000*st.b4+w*0.5329522; st.b5=-0.7616*st.b5-w*0.0168980;
+        buf[i] = (st.b0+st.b1+st.b2+st.b3+st.b4+st.b5+st.b6+w*0.5362)*0.11;
+        st.b6 = w*0.115926;
+      }
+      return;
+    }
+
+    if (st.type === 'grey') {
+      for (i = 0; i < n; i++) {
+        // Generate raw pink noise sample
+        var w = Math.random() * 2 - 1;
+        st.b0=0.99886*st.b0+w*0.0555179; st.b1=0.99332*st.b1+w*0.0750759;
+        st.b2=0.96900*st.b2+w*0.1538520; st.b3=0.86650*st.b3+w*0.3104856;
+        st.b4=0.55000*st.b4+w*0.5329522; st.b5=-0.7616*st.b5-w*0.0168980;
+        var pink = (st.b0+st.b1+st.b2+st.b3+st.b4+st.b5+st.b6+w*0.5362)*0.11;
+        st.b6 = w*0.115926;
+
+        // Apply Biquad 1: midCut (peaking EQ)
+        var mcY = st.mcB0 * pink + st.mcB1 * st.mcX1 + st.mcB2 * st.mcX2 - st.mcA1 * st.mcY1 - st.mcA2 * st.mcY2;
+        st.mcX2 = st.mcX1; st.mcX1 = pink; st.mcY2 = st.mcY1; st.mcY1 = mcY;
+
+        // Apply Biquad 2: lowShelf
+        var lsY = st.lsB0 * mcY + st.lsB1 * st.lsX1 + st.lsB2 * st.lsX2 - st.lsA1 * st.lsY1 - st.lsA2 * st.lsY2;
+        st.lsX2 = st.lsX1; st.lsX1 = mcY; st.lsY2 = st.lsY1; st.lsY1 = lsY;
+
+        // Apply Biquad 3: highShelf
+        var hsY = st.hsB0 * lsY + st.hsB1 * st.hsX1 + st.hsB2 * st.hsX2 - st.hsA1 * st.hsY1 - st.hsA2 * st.hsY2;
+        st.hsX2 = st.hsX1; st.hsX1 = lsY; st.hsY2 = st.hsY1; st.hsY1 = hsY;
+
+        // Output shaped sample with output gain multiplier (1.2)
+        buf[i] = hsY * 1.2;
+      }
+      return;
+    }
+
+    if (st.type === 'brown') {
+      for (i = 0; i < n; i++) {
+        var bw = Math.random() * 2 - 1;
+        st.last = (st.last + 0.006 * bw) / 1.006;
+        var r = st.last * 8;
+        st.lp1 = st.a*st.lp1+(1-st.a)*r;
+        st.lp2 = st.a*st.lp2+(1-st.a)*st.lp1;
+        st.lp3 = st.a*st.lp3+(1-st.a)*st.lp2;
+        buf[i] = st.lp3;
+      }
+      return;
+    }
+
+    if (st.type === 'ocean') {
+      for (i = 0; i < n; i++) {
+        // Brown noise source
+        var bw = Math.random() * 2 - 1;
+        st.last = (st.last + 0.006 * bw) / 1.006;
+        var r = st.last * 8;
+        st.lp1 = st.a*st.lp1+(1-st.a)*r;
+        st.lp2 = st.a*st.lp2+(1-st.a)*st.lp1;
+        st.lp3 = st.a*st.lp3+(1-st.a)*st.lp2;
+        // Low-pass filter
+        var x0 = st.lp3;
+        var y0 = st.lpB0*x0 + st.lpB1*st.lpfX1 + st.lpB2*st.lpfX2 - st.lpA1*st.lpfY1 - st.lpA2*st.lpfY2;
+        st.lpfX2=st.lpfX1; st.lpfX1=x0; st.lpfY2=st.lpfY1; st.lpfY1=y0;
+        // Slow amplitude modulation (0.5 + 0.5*sin gives 0..1 range, like the original lfoGain=0.5 into waveGain=0.5)
+        var env = 0.5 + 0.5 * Math.sin(st.lfoPhase);
+        st.lfoPhase += st.lfoInc;
+        if (st.lfoPhase > 2*Math.PI) st.lfoPhase -= 2*Math.PI;
+        buf[i] = y0 * env;
+      }
+      return;
+    }
+
+    if (st.type === 'fan') {
+      for (i = 0; i < n; i++) {
+        // Harmonic hum
+        var hum = Math.sin(st.ph1)*0.12 + Math.sin(st.ph2)*0.08 + Math.sin(st.ph3)*0.05;
+        st.ph1 += st.phInc1; st.ph2 += st.phInc2; st.ph3 += st.phInc3;
+        if (st.ph1 > 2*Math.PI) st.ph1 -= 2*Math.PI;
+        if (st.ph2 > 2*Math.PI) st.ph2 -= 2*Math.PI;
+        if (st.ph3 > 2*Math.PI) st.ph3 -= 2*Math.PI;
+        // Pink-filtered air noise through bandpass then lowpass
+        var pw = Math.random() * 2 - 1;
+        st.b0=0.99886*st.b0+pw*0.0555179; st.b1=0.99332*st.b1+pw*0.0750759;
+        st.b2=0.96900*st.b2+pw*0.1538520; st.b3=0.86650*st.b3+pw*0.3104856;
+        st.b4=0.55000*st.b4+pw*0.5329522; st.b5=-0.7616*st.b5-pw*0.0168980;
+        var pink = (st.b0+st.b1+st.b2+st.b3+st.b4+st.b5+st.b6+pw*0.5362)*0.11;
+        st.b6 = pw*0.115926;
+        // Bandpass
+        var bx0=pink, by0=st.bpB0*bx0+st.bpB1*st.bpX1+st.bpB2*st.bpX2-st.bpA1*st.bpY1-st.bpA2*st.bpY2;
+        st.bpX2=st.bpX1; st.bpX1=bx0; st.bpY2=st.bpY1; st.bpY1=by0;
+        // Lowpass
+        var lx0=by0, ly0=st.lpB0*lx0+st.lpB1*st.lpX1+st.lpB2*st.lpX2-st.lpA1*st.lpY1-st.lpA2*st.lpY2;
+        st.lpX2=st.lpX1; st.lpX1=lx0; st.lpY2=st.lpY1; st.lpY1=ly0;
+        buf[i] = (hum * 0.95 + ly0 * 0.9) * 1.5;
+      }
+      return;
+    }
+
+    if (st.type === 'green') {
+      for (i = 0; i < n; i++) {
+        var pw = Math.random() * 2 - 1;
+        st.b0=0.99886*st.b0+pw*0.0555179; st.b1=0.99332*st.b1+pw*0.0750759;
+        st.b2=0.96900*st.b2+pw*0.1538520; st.b3=0.86650*st.b3+pw*0.3104856;
+        st.b4=0.55000*st.b4+pw*0.5329522; st.b5=-0.7616*st.b5-pw*0.0168980;
+        var pink = (st.b0+st.b1+st.b2+st.b3+st.b4+st.b5+st.b6+pw*0.5362)*0.11;
+        st.b6 = pw*0.115926;
+        var x0=pink, y0=st.bf0*x0+st.bf2*st.x2-st.a1f*st.y1-st.a2f*st.y2;
+        st.x2=st.x1; st.x1=x0; st.y2=st.y1; st.y1=y0;
+        buf[i] = y0 * 3.0;
+      }
+      return;
+    }
+
+    for (i = 0; i < n; i++) buf[i] = Math.random() * 2 - 1;
+  }
+
+  // ── WAV header ────────────────────────────────────────────────────────────
+
+  function makeWavHeader(totalSamples, sampleRate) {
+    var ch=1, bps=16, byteRate=sampleRate*ch*bps/8, blkAlign=ch*bps/8;
+    var dataSize=totalSamples*blkAlign;
+    var buf=new ArrayBuffer(44), v=new DataView(buf);
+    function ws(off,s){for(var j=0;j<s.length;j++)v.setUint8(off+j,s.charCodeAt(j));}
+    ws(0,'RIFF'); v.setUint32(4,36+dataSize,true); ws(8,'WAVE'); ws(12,'fmt ');
+    v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,ch,true);
+    v.setUint32(24,sampleRate,true); v.setUint32(28,byteRate,true);
+    v.setUint16(32,blkAlign,true); v.setUint16(34,bps,true);
+    ws(36,'data'); v.setUint32(40,dataSize,true);
+    return buf;
+  }
+
+  function encodeChunk(floats, scale) {
+    // Convert float32 chunk to int16 bytes, applying scale in one pass
+    var out = new Int16Array(floats.length);
+    for (var i=0; i<floats.length; i++) {
+      var s = Math.max(-1, Math.min(1, floats[i] * scale));
+      out[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    }
+    return out;
+  }
+
+  // ── Generate & download ───────────────────────────────────────────────────
+  // Two-pass streaming approach:
+  //   Pass 1: generate all chunks as Float32, store them, track peak.
+  //           Each chunk is ~3.5 MB — never a giant single allocation.
+  //   Pass 2: encode each stored chunk to Int16 with the correct scale,
+  //           then assemble header + chunks into a Blob for download.
+  // Peak memory: ~2 × chunk size at any one time during pass 2.
+
+  dlBtn.addEventListener('click', function () {
+    dlBtn.disabled = true;
+    dlProgress.classList.add('visible');
+    dlProgressBar.style.width = '0%';
+    dlProgressLbl.textContent = 'Generating ' + dlNoiseType + ' noise\u2026';
+
+    setTimeout(function () {
+      var SR = 44100;
+      var total = dlDurationMins * 60 * SR;
+      var CHUNK = SR * 10;
+      var done = 0;
+      var chunks = [];   // array of Float32Array, one per 10-second chunk
+      var peak  = 0;
+      var st = makeState(dlNoiseType, SR);
+
+      // Pass 1: generate
+      function pass1() {
+        var end = Math.min(done + CHUNK, total);
+        var chunk = new Float32Array(end - done);
+        fillChunk(chunk, st);
+        // Track peak across all chunks
+        for (var j=0; j<chunk.length; j++) if (Math.abs(chunk[j]) > peak) peak = Math.abs(chunk[j]);
+        chunks.push(chunk);
+        done = end;
+
+        var pct = Math.round(done / total * 80);
+        dlProgressBar.style.width = pct + '%';
+        dlProgressLbl.textContent = 'Generating\u2026 ' + pct + '%';
+
+        if (done < total) { setTimeout(pass1, 0); return; }
+
+        // All chunks generated — move to encoding pass
+        dlProgressLbl.textContent = 'Encoding\u2026';
+        setTimeout(pass2, 0);
+      }
+
+      // Pass 2: encode chunks to Int16 and assemble Blob
+      var encIdx = 0;
+      var scale = (peak > 0 ? 0.85 / peak : 1) * (dlNoiseType === 'grey' ? 0.316 * 1.5 : 1);
+      var blobParts = [makeWavHeader(total, SR)];
+
+      function pass2() {
+        if (encIdx < chunks.length) {
+          blobParts.push(encodeChunk(chunks[encIdx], scale));
+          chunks[encIdx] = null; // release Float32 memory as we go
+          encIdx++;
+
+          var pct = 80 + Math.round(encIdx / chunks.length * 18);
+          dlProgressBar.style.width = pct + '%';
+          dlProgressLbl.textContent = 'Encoding\u2026 ' + pct + '%';
+
+          setTimeout(pass2, 0);
+          return;
+        }
+
+        // Done — assemble and trigger download
+        dlProgressBar.style.width = '100%';
+        dlProgressLbl.textContent = 'Download starting\u2026';
+        var blob = new Blob(blobParts, { type: 'audio/wav' });
+        var url  = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = dlNoiseType + '-noise-' + fmtMins(dlDurationMins).replace(/ /g,'-') + '.wav';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
+        dlProgressLbl.textContent = 'Done! Check your downloads.';
+        setTimeout(function () {
+          dlProgress.classList.remove('visible');
+          dlBtn.disabled = false;
+        }, 3000);
+      }
+
+      pass1();
+    }, 50);
+  });
+
+}());
+</script>
+</body>
+</html>
