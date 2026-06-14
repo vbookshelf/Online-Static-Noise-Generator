@@ -1,7 +1,7 @@
 # Online Static Noise Generator
 A web based static noise machine to create different colors of static noise on the fly. Static noise is used for sleep, relaxation, focus and ADHD support.
 
-Noise for Sleep<br>
+<b>Noise for Sleep</b><br>
 https://noiseforsleep.com/
 
 - Web based. Built using HTML, CSS and JS.
