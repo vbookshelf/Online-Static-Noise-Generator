@@ -10,7 +10,7 @@ https://noiseforsleep.com/
 - Stream audio or generate custom duration WAV audio files for use offline.
 - Six noise options - white, pink brown, grey, green, ocean and fan.
 - If you want other noise types, simply download this code, then use AI to modify the index.html file to generate the noise type or colour you want.
-- Free and Open Source. No ads. No upselling. No paywalls. No tracking.
+- Free and Open Source.
 
 <br>
 
