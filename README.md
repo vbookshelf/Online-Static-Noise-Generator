@@ -11,3 +11,28 @@ https://noiseforsleep.com/
 - Six noise options - white, pink brown, grey, green, ocean and fan.
 - If you want other noise types, simply download this code and use AI to modify the index.html file to generate your noise of choice.
 - Free and Open Source. No ads. No upselling. No paywalls. No tracking.
+
+<br>
+
+<img src="images/image1.png" alt="App screenshot" width="800">
+<p>Minimalist UI</p>
+
+<br>
+
+<img src="images/image2.png" alt="App screenshot" width="800">
+<p>Stream Audio</p>
+
+<br>
+
+<img src="images/image3.png" alt="App screenshot" width="800">
+<p>Create audio files</p>
+
+<br>
+
+## Revision History
+
+Version 1.0<br>
+15-June-2026<br>
+First release.
+
+<br>
