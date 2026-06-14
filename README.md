@@ -7,7 +7,7 @@ https://noiseforsleep.com/
 - Web based. Built using HTML, CSS and JS.
 - Can run from the desktop. Simply download and double click the index.html file to launch.
 - Generates static noise on the fly, therefore no looping and no clicking sound to disturb your sleep. 
-- Generates custom duration WAV audio files for use offline.
+- Stream audio or generate custom duration WAV audio files for use offline.
 - Six noise options - white, pink brown, grey, green, ocean and fan.
 - If you want other noise types, simply download this code and use AI to modify the index.html file to generate your noise of choice.
 - Free and Open Source. No ads. No upselling. No paywalls. No tracking.
