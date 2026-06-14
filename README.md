@@ -5,6 +5,7 @@ A web based static noise machine to create different colors of static noise on t
 https://noiseforsleep.com/
 
 - Web based. Built using HTML, CSS and JS.
+- Mobile optimized.
 - Can run from the desktop. Simply download and double click the index.html file to launch.
 - Generates static noise on the fly, therefore no looping and no clicking sound to disturb your sleep. 
 - Stream audio or generate custom duration WAV audio files for use offline.
