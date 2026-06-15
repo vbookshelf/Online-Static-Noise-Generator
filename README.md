@@ -16,7 +16,7 @@ https://noiseforsleep.com/
 
 <br>
 
-<img src="images/image4.png" alt="App screenshot" width="400">
+<img src="images/image4.png" alt="App screenshot" width="300">
 <p>Mobile optimized</p>
 
 <br>
