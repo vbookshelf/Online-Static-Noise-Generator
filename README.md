@@ -16,6 +16,11 @@ https://noiseforsleep.com/
 
 <br>
 
+<img src="images/image4.png" alt="App screenshot" width="400">
+<p>Mobile optimized</p>
+
+<br>
+
 <img src="images/image1.png" alt="App screenshot" width="800">
 <p>Minimalist UI</p>
 
