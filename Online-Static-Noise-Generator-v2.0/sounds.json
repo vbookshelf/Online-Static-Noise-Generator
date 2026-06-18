@@ -1,0 +1,14 @@
+[
+    { "name": "Crackling Fire", "file": "crackling-fire-1min.mp3", "tag": "Nature" },
+	{ "name": "Steady Rain", "file": "rain-1min.mp3", "tag": "Nature" },
+	{ "name": "Flowing River", "file": "river-1min.mp3", "tag": "Nature" },
+	{ "name": "Forest Birds", "file": "forest-birds-1min.mp3", "tag": "Nature" },
+	{ "name": "Whale Underwater", "file": "underwater-1min.mp3", "tag": "Nature" },
+	{ "name": "Ocean Waves", "file": "waves-1min.mp3", "tag": "Nature" },
+	{ "name": "Brown Noise", "file": "smoothed-brown-noise-1min.mp3", "tag": "Static" },
+    { "name": "Fan Noise", "file": "fan-noise-1min.wav", "tag": "Static" },
+    { "name": "Green Noise", "file": "green-noise-1min.wav", "tag": "Static" },
+    { "name": "Grey Noise", "file": "grey-noise-1min.wav", "tag": "Static" },
+    { "name": "Pink Noise", "file": "pink-noise-1min.wav", "tag": "Static" },
+    { "name": "White Noise", "file": "white-noise-1min.wav", "tag": "Static" }
+]

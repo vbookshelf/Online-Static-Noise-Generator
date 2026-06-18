@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound Mixer</title>
+    <style>
+/* ── Design tokens (matches noise-for-sleep.html exactly) ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d0f14; --bg2: #141720; --bg3: #1c2030;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+  --text: #e8eaf0; --text2: #8b90a4; --text3: #555b70;
+  --accent: #5b8cff; --accent-dim: rgba(91,140,255,0.12); --accent-glow: rgba(91,140,255,0.25);
+  --radius: 12px; --radius-sm: 8px;
+}
+
+body {
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 16px; line-height: 1.6; min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+/* ── Header ── */
+header {
+  padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border); background: var(--bg);
+}
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-icon {
+  width: 32px; height: 32px; background: var(--accent); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-text { font-size: 20px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+.logo-text span { color: var(--accent); }
+.header-back {
+  font-size: 16px; color: var(--text2); text-decoration: none;
+  display: flex; align-items: center; gap: 5px; transition: color 0.15s;
+}
+.header-back:hover { color: var(--accent); }
+
+/* ── Hero ── */
+.hero { text-align: center; padding: 3rem 2rem 1.5rem; }
+.hero-eyebrow {
+  font-size: 13px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;
+}
+.hero h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1rem;
+}
+.hero p { font-size: 18px; color: var(--text2); max-width: 480px; margin: 0 auto; }
+
+/* ── Main card ── */
+.player-wrap { padding: 1.5rem 2rem; display: flex; justify-content: center; }
+.player {
+  width: 100%; max-width: 460px;
+  background: var(--bg2);
+  border: 1.5px solid rgba(91,140,255,0.4);
+  border-radius: 20px;
+  overflow: hidden; padding: 2rem;
+  display: flex; flex-direction: column; gap: 1.5rem;
+}
+
+/* ── Tracks ── */
+.tracks-section { display: flex; flex-direction: column; gap: 1rem; }
+.tracks-header { display: flex; align-items: center; gap: 8px; }
+.tracks-label { font-size: 14px; color: var(--text2); }
+.tracks-container { display: flex; flex-direction: column; gap: 14px; }
+
+.track-row { display: flex; align-items: center; gap: 12px; }
+.track-info { width: 100px; min-width: 100px; display: flex; flex-direction: column; }
+.track-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+.track-tag { font-size: 12px; color: var(--text3); letter-spacing: 0.04em; }
+.slider-wrapper { flex-grow: 1; display: flex; align-items: center; }
+.volume-percentage { width: 38px; text-align: right; font-size: 14px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.remove-track-btn {
+  background: none; border: none; color: #ef4444; cursor: pointer;
+  padding: 4px; display: flex; align-items: center; justify-content: center;
+  opacity: 0.45; transition: opacity 0.15s;
+}
+.remove-track-btn:hover { opacity: 1; }
+
+/* ── Tooltips ── */
+.tooltip-wrapper { position: relative; display: inline-block; }
+.info-btn {
+  background: var(--bg3); border: 1px solid var(--border); color: var(--text2);
+  width: 18px; height: 18px; border-radius: 50%; font-size: 11px;
+  font-family: serif; font-style: italic; font-weight: bold; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.info-btn:hover, .info-btn:focus-visible {
+  border-color: var(--accent); color: var(--text); background: var(--accent-dim); outline: none;
+}
+
+/* Shared Tooltip Styling */
+.tooltip-content {
+  position: absolute;
+  width: 240px; background: var(--bg3); border: 1px solid var(--border2); color: var(--text);
+  padding: 10px 12px; border-radius: var(--radius-sm); font-size: 12px; line-height: 1.5;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5); pointer-events: none; opacity: 0;
+  transition: opacity 0.2s, transform 0.2s; z-index: 10;
+}
+.tooltip-content::after {
+  content: ""; position: absolute;
+  left: 50%; margin-left: -5px;
+  border-width: 5px; border-style: solid;
+}
+
+/* Modifier: Tooltip ABOVE the icon */
+.tooltip-above {
+  bottom: 135%;
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+}
+.tooltip-above::after {
+  top: 100%; /* Arrow sits at the bottom of the tooltip */
+  border-color: var(--border2) transparent transparent transparent; /* Arrow points down */
+}
+.tooltip-wrapper:hover .tooltip-above, .info-btn:focus + .tooltip-above {
+  opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0);
+}
+
+/* Modifier: Tooltip BELOW the icon */
+.tooltip-below {
+  top: 135%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-5px);
+}
+.tooltip-below::after {
+  bottom: 100%; /* Arrow sits at the top of the tooltip */
+  border-color: transparent transparent var(--border2) transparent; /* Arrow points up */
+}
+.tooltip-wrapper:hover .tooltip-below, .info-btn:focus + .tooltip-below {
+  opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0);
+}
+
+/* ── Range inputs (unified) ── */
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 4px; background: var(--bg3); border-radius: 2px; outline: none; cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--accent); cursor: pointer; border: 2px solid var(--bg);
+  transition: box-shadow 0.15s;
+}
+input[type="range"]:hover::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--accent-glow); }
+input[type="range"]::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--bg); cursor: pointer;
+}
+input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+/* ── Add track button ── */
+.add-track-dashed-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 10px 14px;
+  border: 1.5px dashed var(--border2); border-radius: var(--radius-sm);
+  background: transparent; color: var(--text2); font-size: 14px;
+  cursor: pointer; transition: all 0.15s;
+}
+.add-track-dashed-btn:hover { border-color: var(--accent); color: var(--text); }
+
+/* ── Play button ── */
+.play-btn {
+  width: 100%; padding: 13px;
+  background: #2a54c4; color: #fff;
+  border: none; border-radius: var(--radius);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.play-btn:hover { opacity: 0.88; }
+.play-btn:active { transform: scale(0.98); }
+.play-btn.playing { background: #b45309; }
+.play-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Export / download panel ── */
+.export-section { width: 100%; border-top: 1px solid var(--border); padding-top: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+.export-section-label { font-size: 14px; color: var(--text2); }
+
+/* Duration pills */
+.dl-dur-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.dl-dur-pill {
+  padding: 7px 14px; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 20px; font-size: 13px; color: var(--text2); cursor: pointer; transition: all 0.12s;
+}
+.dl-dur-pill:hover { border-color: var(--border2); color: var(--text); }
+.dl-dur-pill.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+/* Duration slider row */
+.dl-slider-row { display: grid; grid-template-columns: 1fr 60px; align-items: center; gap: 10px; }
+.dl-slider-val { font-size: 13px; font-weight: 600; color: var(--text); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dl-size-hint { font-size: 12px; color: var(--text3); margin-top: -6px; }
+
+/* Fade checkboxes */
+.fade-row { display: flex; gap: 20px; align-items: center; }
+.fade-row label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text2); cursor: pointer;
+}
+.fade-row input[type="checkbox"] {
+  width: 14px; height: 14px; accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* Progress */
+.dl-progress { display: none; flex-direction: column; gap: 5px; }
+.dl-progress.visible { display: flex; }
+.dl-progress-bg { width: 100%; height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.dl-progress-bar { height: 100%; width: 0%; background: var(--accent); border-radius: 3px; transition: width 0.1s linear; }
+.dl-progress-label { font-size: 12px; color: var(--text2); text-align: center; }
+
+/* Export button */
+.export-btn {
+  width: 100%; padding: 12px;
+  background: #2a54c4; color: #fff;
+  border: none; border-radius: var(--radius);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.export-btn:hover { opacity: 0.88; }
+.export-btn:active { transform: scale(0.98); }
+.export-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.dl-note { font-size: 12px; color: var(--text3); line-height: 1.6; text-align: center; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(13,15,20,0.85); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 100;
+}
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+.modal-card {
+  background: var(--bg2); border: 1.5px solid var(--border2);
+  border-radius: 20px; width: 90%; max-width: 400px; padding: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+}
+.modal-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--text); }
+
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+.form-group input[type="text"] {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); padding: 10px; color: var(--text); outline: none; font-size: 14px;
+}
+.form-group input[type="text"]:focus { border-color: var(--accent); }
+.form-group input[type="file"] { display: none; }
+.file-upload-label {
+  display: block; width: 100%; padding: 12px;
+  border: 1.5px dashed var(--border2); border-radius: var(--radius-sm);
+  text-align: center; cursor: pointer; color: var(--text2); font-size: 14px; transition: all 0.15s;
+}
+.file-upload-label:hover { border-color: var(--accent); color: var(--text); }
+.file-name-preview { margin-top: 6px; font-size: 12px; color: var(--accent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.modal-btn {
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 600; cursor: pointer; border: none;
+}
+.modal-btn-cancel { background: transparent; border: 1px solid var(--border2); color: var(--text); }
+.modal-btn-cancel:hover { border-color: var(--text2); }
+.modal-btn-submit { background: var(--accent); color: #fff; }
+.modal-btn-submit:hover { opacity: 0.88; }
+
+/* Modal tabs */
+.modal-tabs { display: flex; margin-bottom: 18px; border-bottom: 1px solid var(--border); }
+.modal-tab {
+  flex: 1; padding: 8px; background: none; border: none;
+  border-bottom: 2px solid transparent; color: var(--text2);
+  font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; margin-bottom: -1px;
+}
+.modal-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+/* Library grid */
+.library-grid {
+  display: flex; flex-direction: column; gap: 6px;
+  max-height: 260px; overflow-y: auto; margin-bottom: 4px; padding-right: 4px;
+}
+.library-grid::-webkit-scrollbar { width: 4px; }
+.library-grid::-webkit-scrollbar-track { background: transparent; }
+.library-grid::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+.library-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  cursor: pointer; transition: all 0.15s; background: var(--bg3);
+}
+.library-item:hover { border-color: var(--accent); background: var(--accent-dim); }
+.library-item.loading { opacity: 0.5; pointer-events: none; }
+.library-item-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.library-item-tag { font-size: 12px; color: var(--text3); text-align: left; }
+.library-item-add { font-size: 13px; color: var(--accent); font-weight: 600; white-space: nowrap; }
+.library-empty { text-align: center; color: var(--text2); font-size: 14px; padding: 32px 0; }
+
+/* ── Footer ── */
+footer {
+  margin-top: auto; padding: 1.5rem 2rem;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+}
+.footer-note { font-size: 15px; color: var(--text2); font-style: italic; text-decoration: none; transition: color 0.15s; }
+.footer-note em { font-style: normal; font-weight: 600; }
+.footer-note a { color: inherit; text-decoration: none; }
+
+/* ── Responsive ── */
+@media (max-width: 540px) {
+  header { padding: 1rem; }
+  .hero { padding: 2rem 1.25rem 1rem; }
+  .player-wrap { padding: 1rem; }
+  footer { flex-direction: column; }
+  /* Mobile responsive tooltip adjustments */
+  .tooltip-content {
+    width: min(210px, calc(100vw - 56px));
+  }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+    </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a class="logo" href="index.html">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M2 9 Q4.5 3 9 9 Q13.5 15 16 9" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+      </div>
+      <span class="logo-text">Noise for <span>Sleep</span></span>
+    </a>
+    <a class="header-back" href="index.html">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      Back to player
+    </a>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Sound Mixer</h1>
+    <p>Blend soothing sounds. Play offline.</p>
+  </div>
+
+  <!-- Player card -->
+  <div class="player-wrap">
+    <div class="player">
+
+      <!-- Tracks -->
+      <div class="tracks-section">
+        <div class="tracks-header">
+          <div class="tracks-label">Sound Layers</div>
+          <div class="tooltip-wrapper">
+            <button type="button" class="info-btn" aria-label="How to use the sound mixer" aria-describedby="tooltip-text">i</button>
+            <div class="tooltip-content tooltip-below" id="tooltip-text" role="tooltip">
+              <strong>How to Mix:</strong><br>
+              • Use sliders to balance sound volumes.<br>
+              • Click <strong>+ Add Sound</strong> to load audio files.<br>
+			  • Tracks should be at least 10 seconds long to ensure that a 3-second crossfade is fully applied. This will prevent clicking during audio loops.<br>
+              • Click <strong>Export</strong> to render the mix into a high-quality WAV.<br>
+              • <em>Note:</em> Streaming online is infinite, but file exports are capped at 2 hours to prevent system memory limit errors. Downloading long duration audio files may fail on mobile devices.
+            </div>
+          </div>
+        </div>
+        <div class="tracks-container" id="tracksContainer"></div>
+        <button class="add-track-dashed-btn" id="addTrackBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Add Sound Layer
+        </button>
+      </div>
+
+      <!-- Play button -->
+      <button class="play-btn" id="playBtn" aria-pressed="false">
+        <svg id="playIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Play Mix
+      </button>
+
+      <!-- Export panel -->
+      <div class="export-section">
+        <div class="export-section-label">Export to WAV</div>
+
+        <div class="dl-dur-pills">
+          <button class="dl-dur-pill" data-mins="15">15 min</button>
+          <button class="dl-dur-pill" data-mins="30">30 min</button>
+          <button class="dl-dur-pill active" data-mins="60">1 hr</button>
+          <button class="dl-dur-pill" data-mins="120">2 hr</button>
+        </div>
+
+        <div class="dl-slider-row">
+          <label for="durationSlider" class="sr-only">Export duration</label>
+          <input type="range" id="durationSlider" min="1" max="120" value="60" step="1" aria-label="Export duration" aria-valuetext="1h">
+          <div class="dl-slider-val" id="durationVal">1h</div>
+        </div>
+        <div class="dl-size-hint" id="sizeHint">Estimated file size: ~605 MB</div>
+
+        <div class="fade-row">
+          <label><input type="checkbox" id="fadeInCheck"> Fade in</label>
+          <label><input type="checkbox" id="fadeOutCheck"> Fade out</label>
+          <div class="tooltip-wrapper">
+            <button type="button" class="info-btn" aria-label="About fades" aria-describedby="fade-tooltip-text">i</button>
+            <div class="tooltip-content tooltip-above" id="fade-tooltip-text" role="tooltip">
+              <strong>Gradual Transitions:</strong><br>
+              • <strong>Fade in:</strong> Gradually rises to full volume at the start.<br>
+              • <strong>Fade out:</strong> Gently drops to silence at the end. Highly recommended to prevent sudden silence from jerking you awake.
+            </div>
+          </div>
+        </div>
+
+        <div class="dl-progress" id="dlProgress">
+          <div class="dl-progress-bg"><div class="dl-progress-bar" id="dlProgressBar"></div></div>
+          <div class="dl-progress-label" id="dlProgressLabel" aria-live="polite" aria-atomic="true">Rendering...</div>
+        </div>
+
+        <button class="export-btn" id="exportBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Export Audio File
+        </button>
+		<!--
+        <div class="dl-note">Files are generated locally &mdash; nothing is uploaded to a server.</div>
+	    -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+	  <!--
+    <span class="footer-note">A <a href="https://fivejc.com/" target="_blank" rel="noopener noreferrer"><em>fiveJC</em></a> ministry project.</span>
+    <span class="footer-note"><a href="https://github.com/vbookshelf/Online-Static-Noise-Generator" target="_blank" rel="noopener noreferrer" aria-label="View source on GitHub">GitHub</a></span>
+    -->
+	<a class="header-back" href="index.html">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      Back to player
+    </a>
+  </footer>
+
+    <!-- Modal for adding custom audio -->
+    <div class="modal-overlay" id="uploadModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-card">
+            <div class="modal-title" id="modalTitle">Add Sound</div>
+
+            <!-- Tab switcher -->
+            <div class="modal-tabs" role="tablist">
+                <button class="modal-tab active" id="tabLibrary" role="tab" aria-selected="true" aria-controls="panelLibrary">Sound Library</button>
+                <button class="modal-tab" id="tabUpload" role="tab" aria-selected="false" aria-controls="panelUpload">Upload File</button>
+            </div>
+
+            <!-- Library tab -->
+            <div id="panelLibrary" role="tabpanel" aria-labelledby="tabLibrary">
+                <div class="library-grid" id="libraryGrid">
+                    <div class="library-empty">Loading library...</div>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-cancel" id="cancelModalBtn">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Upload tab -->
+            <div id="panelUpload" role="tabpanel" aria-labelledby="tabUpload" style="display:none;">
+                <div class="form-group">
+                    <label for="soundFile">Select Audio File</label>
+                    <label class="file-upload-label" id="fileLabel" for="soundFile">Choose MP3 or WAV file</label>
+                    <input type="file" id="soundFile" accept="audio/*">
+                    <div class="file-name-preview" id="fileNamePreview"></div>
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn modal-btn-cancel" id="cancelModalBtnUpload">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Track list management
+        let tracks = [
+            { id: 'lib_rain',  name: 'Steady Rain',  type: 'user', volume: 50, buffer: null, file: 'rain-1min.mp3' },
+            { id: 'lib_waves', name: 'Ocean Waves', type: 'user', volume: 80, buffer: null, file: 'waves-1min.mp3' },
+        ];
+
+        // Web Audio global contexts
+        let audioCtx = null;
+        let isPlaying = false;
+        let activeGainNodes = {}; // Maps track id to active GainNode
+
+        // DOM Elements
+        const tracksContainer = document.getElementById('tracksContainer');
+        const playBtn = document.getElementById('playBtn');
+        const playIcon = document.getElementById('playIcon');
+        const exportBtn = document.getElementById('exportBtn');
+        const addTrackBtn = document.getElementById('addTrackBtn');
+        const uploadModal = document.getElementById('uploadModal');
+        const cancelModalBtn = document.getElementById('cancelModalBtn');
+        const soundFile = document.getElementById('soundFile');
+        const fileLabel = document.getElementById('fileLabel');
+        const fileNamePreview = document.getElementById('fileNamePreview');
+        const durationSlider = document.getElementById('durationSlider');
+        const durationVal = document.getElementById('durationVal');
+        const sizeHint = document.getElementById('sizeHint');
+        const dlProgress = document.getElementById('dlProgress');
+        const dlProgressBar = document.getElementById('dlProgressBar');
+        const dlProgressLabel = document.getElementById('dlProgressLabel');
+
+        // Duration pills
+        const BYTES_PER_SEC = 44100 * 2 * 2; // stereo 16-bit 44.1kHz
+        const durationPills = document.querySelectorAll('.dl-dur-pill');
+
+        function formatDurationLabel(mins) {
+            const h = Math.floor(mins / 60);
+            const m = mins % 60;
+            if (h === 0) return m + 'min';
+            if (m === 0) return h + 'h';
+            return h + 'h ' + m + 'min';
+        }
+
+        function updateSizeHint(mins) {
+            const mb = (mins * 60 * BYTES_PER_SEC) / (1024 * 1024);
+            sizeHint.textContent = 'Estimated file size: ~' + mb.toFixed(0) + ' MB';
+        }
+
+        function syncPills(mins) {
+            durationPills.forEach(p => p.classList.toggle('active', parseInt(p.dataset.mins) === mins));
+        }
+
+        durationSlider.addEventListener('input', () => {
+            const mins = parseInt(durationSlider.value);
+            const label = formatDurationLabel(mins);
+            durationVal.textContent = label;
+            durationSlider.setAttribute('aria-valuetext', label);
+            updateSizeHint(mins);
+            syncPills(mins);
+        });
+
+        durationPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                const mins = parseInt(pill.dataset.mins);
+                const label = formatDurationLabel(mins);
+                durationSlider.value = mins;
+                durationVal.textContent = label;
+                durationSlider.setAttribute('aria-valuetext', label);
+                updateSizeHint(mins);
+                syncPills(mins);
+            });
+        });
+
+        // Init display
+        updateSizeHint(60);
+
+        // Formats a duration in seconds to M:SS
+        function formatDuration(seconds) {
+            if (!seconds || isNaN(seconds)) return '0:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Crossfade loop utility: blends the tail of a buffer into its head
+        // to eliminate clicks and silence at loop boundaries.
+        function crossfadeBuffer(ctx, buffer) {
+            const fadeTime = Math.min(0.03, buffer.duration * 0.05);
+            const fadeSamples = Math.floor(fadeTime * buffer.sampleRate);
+            const numChannels = buffer.numberOfChannels;
+            const newLength = buffer.length - fadeSamples;
+
+            if (newLength <= 0 || fadeSamples < 2) return buffer;
+
+            const newBuffer = ctx.createBuffer(numChannels, newLength, buffer.sampleRate);
+
+            for (let c = 0; c < numChannels; c++) {
+                const srcData = buffer.getChannelData(c);
+                const dstData = newBuffer.getChannelData(c);
+
+                for (let i = 0; i < newLength; i++) {
+                    dstData[i] = srcData[i];
+                }
+
+                // Blend tail samples into the head for a seamless loop
+                for (let i = 0; i < fadeSamples; i++) {
+                    const t = i / fadeSamples;
+                    const fadeIn  = Math.sin(t * Math.PI * 0.5);
+                    const fadeOut = Math.cos(t * Math.PI * 0.5);
+                    dstData[i] = dstData[i] * fadeOut + srcData[newLength + i] * fadeIn;
+                }
+            }
+
+            return newBuffer;
+        }
+
+                // Initialize Audio Context
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Render UI Tracks
+        function renderTracks() {
+            tracksContainer.innerHTML = '';
+            tracks.forEach(track => {
+                const row = document.createElement('div');
+                row.className = 'track-row';
+                row.id = `row-${track.id}`;
+
+                // Calculate CSS background fill percentage for the range input
+                const percentage = track.volume;
+                const fillStyle = `background: linear-gradient(to right, var(--accent) 0%, var(--accent) ${percentage}%, var(--bg3) ${percentage}%, var(--bg3) 100%)`;
+
+                // Display exact duration once loaded, "Loading…" while being fetched/decoded
+                const trackTagText = track.buffer ? formatDuration(track.buffer.duration) : 'Loading…';
+
+                row.innerHTML = `
+                    <div class="track-info">
+                        <div class="track-name" title="${track.name}">${track.name}</div>
+                        <div class="track-tag">${trackTagText}</div>
+                    </div>
+                    <div class="slider-wrapper">
+                        <input class="volume-slider" type="range" min="0" max="100" value="${track.volume}" style="${fillStyle}"
+                          aria-label="${track.name} volume" aria-valuetext="${track.volume}%">
+                    </div>
+                    <div class="volume-percentage" aria-hidden="true">${track.volume}%</div>
+                    <button class="remove-track-btn" data-id="${track.id}" aria-label="Remove ${track.name}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                `;
+
+                // Add slider functionality
+                const slider = row.querySelector('.volume-slider');
+                const pctLabel = row.querySelector('.volume-percentage');
+
+                slider.addEventListener('input', (e) => {
+                    const val = parseInt(e.target.value);
+                    track.volume = val;
+                    pctLabel.innerText = `${val}%`;
+                    e.target.setAttribute('aria-valuetext', `${val}%`);
+                    
+                    // Dynamic fill background
+                    e.target.style.background = `linear-gradient(to right, var(--accent) 0%, var(--accent) ${val}%, var(--bg3) ${val}%, var(--bg3) 100%)`;
+
+                    // Dynamic runtime gain adjustment
+                    if (isPlaying && activeGainNodes[track.id]) {
+                        activeGainNodes[track.id].gain.setTargetAtTime(val / 100, audioCtx.currentTime, 0.05);
+                    }
+                });
+
+                // Add delete functionality for all tracks
+                row.querySelector('.remove-track-btn').addEventListener('click', () => {
+                    removeTrack(track.id);
+                });
+
+                tracksContainer.appendChild(row);
+            });
+        }
+
+        // Delete track function
+        function removeTrack(id) {
+            if (isPlaying) {
+                stopPlayback();
+            }
+            tracks = tracks.filter(t => t.id !== id);
+            renderTracks();
+        }
+
+        // Real-time playback routines
+        const CROSSFADE_DURATION = 3.0; // seconds of overlap between loops
+
+        // Equal-power fade curves: sin for fade-in, cos for fade-out.
+        // These sum to constant power (1.0) at every point, eliminating the midpoint dip.
+        function makeEqualPowerCurve(type, steps) {
+            const curve = new Float32Array(steps);
+            for (let i = 0; i < steps; i++) {
+                const t = (i / (steps - 1)) * (Math.PI / 2);
+                curve[i] = type === 'in' ? Math.sin(t) : Math.cos(t);
+            }
+            return curve;
+        }
+        const FADE_CURVE_STEPS = 128;
+        const FADE_IN_CURVE  = makeEqualPowerCurve('in',  FADE_CURVE_STEPS);
+        const FADE_OUT_CURVE = makeEqualPowerCurve('out', FADE_CURVE_STEPS);
+
+        // Schedules a single crossfading loop for a track using two alternating sources
+        function scheduleCrossfadeLoop(track, gainNode) {
+            const buf = track.buffer;
+            const clipLen = buf.duration;
+            const fade = Math.min(CROSSFADE_DURATION, clipLen * 0.4); // never exceed 40% of clip
+            const interval = clipLen - fade; // how often a new source starts
+
+            if (!track._xfadeState) {
+                track._xfadeState = { sources: [], nextStart: audioCtx.currentTime, stopped: false };
+            }
+            const state = track._xfadeState;
+
+            function scheduleNext() {
+                if (state.stopped) return;
+
+                const startAt = state.nextStart;
+                const src = audioCtx.createBufferSource();
+                src.buffer = buf;
+
+                // Per-instance gain for crossfade envelope
+                const instanceGain = audioCtx.createGain();
+                instanceGain.gain.setValueAtTime(0, startAt);
+                instanceGain.gain.setValueCurveAtTime(FADE_IN_CURVE,  startAt, fade);              // equal-power fade in
+                instanceGain.gain.setValueAtTime(1, startAt + clipLen - fade);                     // hold
+                instanceGain.gain.setValueCurveAtTime(FADE_OUT_CURVE, startAt + clipLen - fade, fade); // equal-power fade out
+
+                src.connect(instanceGain);
+                instanceGain.connect(gainNode);
+                src.start(startAt);
+                src.stop(startAt + clipLen);
+
+                state.sources.push({ src, instanceGain });
+
+                state.nextStart += interval;
+
+                // Schedule next instance just before the crossfade begins
+                const lookahead = (state.nextStart - audioCtx.currentTime) * 1000 - 200;
+                track._xfadeTimer = setTimeout(scheduleNext, Math.max(0, lookahead));
+            }
+
+            scheduleNext();
+        }
+
+        function startPlayback() {
+            initAudio();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            tracks.forEach(track => {
+                if (!track.buffer) return;
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(track.volume / 100, audioCtx.currentTime);
+                gainNode.connect(audioCtx.destination);
+
+                activeGainNodes[track.id] = gainNode;
+
+                track._xfadeState = null;
+                scheduleCrossfadeLoop(track, gainNode);
+            });
+
+            isPlaying = true;
+            playBtn.setAttribute('aria-pressed', 'true');
+            playBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> Pause Mix';
+            playBtn.classList.add('playing');
+        }
+
+        function stopPlayback() {
+            tracks.forEach(track => {
+                // Stop crossfade scheduler
+                if (track._xfadeTimer) {
+                    clearTimeout(track._xfadeTimer);
+                    track._xfadeTimer = null;
+                }
+                if (track._xfadeState) {
+                    track._xfadeState.stopped = true;
+                    track._xfadeState.sources.forEach(({ src }) => {
+                        try { src.stop(); } catch(e) {}
+                    });
+                    track._xfadeState = null;
+                }
+                if (activeGainNodes[track.id]) {
+                    delete activeGainNodes[track.id];
+                }
+            });
+            isPlaying = false;
+            playBtn.setAttribute('aria-pressed', 'false');
+            playBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Mix';
+            playBtn.classList.remove('playing');
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                stopPlayback();
+            } else {
+                startPlayback();
+            }
+        });
+
+        // ── Modal tab switching ──────────────────────────────────────────
+        const tabLibrary   = document.getElementById('tabLibrary');
+        const tabUpload    = document.getElementById('tabUpload');
+        const panelLibrary = document.getElementById('panelLibrary');
+        const panelUpload  = document.getElementById('panelUpload');
+        const libraryGrid  = document.getElementById('libraryGrid');
+
+        tabLibrary.addEventListener('click', () => {
+            tabLibrary.classList.add('active');
+            tabLibrary.setAttribute('aria-selected', 'true');
+            tabUpload.classList.remove('active');
+            tabUpload.setAttribute('aria-selected', 'false');
+            panelLibrary.style.display = '';
+            panelUpload.style.display = 'none';
+            tabLibrary.focus();
+        });
+
+        tabUpload.addEventListener('click', () => {
+            tabUpload.classList.add('active');
+            tabUpload.setAttribute('aria-selected', 'true');
+            tabLibrary.classList.remove('active');
+            tabLibrary.setAttribute('aria-selected', 'false');
+            panelUpload.style.display = '';
+            panelLibrary.style.display = 'none';
+            tabUpload.focus();
+        });
+
+        // ── Sound Library loader ──────────────────────────────────────────
+        // Reads sounds.json which should be an array of objects:
+        // [ { "name": "Ocean Waves", "file": "ocean-waves.mp3", "tag": "Nature" }, ... ]
+        async function loadLibrary() {
+            try {
+                const res = await fetch('sounds.json', { cache: 'no-store' });
+                if (!res.ok) throw new Error('sounds.json not found');
+                const sounds = await res.json();
+
+                if (!sounds.length) {
+                    libraryGrid.innerHTML = '<div class="library-empty">No sounds in library yet.</div>';
+                    return;
+                }
+
+                libraryGrid.innerHTML = '';
+                sounds.forEach(sound => {
+                    const item = document.createElement('button');
+                    item.className = 'library-item';
+                    item.type = 'button';
+                    item.setAttribute('aria-label', `Add ${sound.name}${sound.tag ? ', ' + sound.tag : ''}`);
+                    item.innerHTML = `
+                        <div>
+                            <div class="library-item-name">${sound.name}</div>
+                            ${sound.tag ? `<div class="library-item-tag">${sound.tag}</div>` : ''}
+                        </div>
+                        <div class="library-item-add" aria-hidden="true">+ Add</div>
+                    `;
+                    item.addEventListener('click', () => loadLibrarySound(sound, item));
+                    libraryGrid.appendChild(item);
+                });
+            } catch (e) {
+                libraryGrid.innerHTML = '<div class="library-empty">Could not load sound library.<br>Make sure sounds.json exists.</div>';
+            }
+        }
+
+        async function loadLibrarySound(sound, itemEl) {
+            itemEl.classList.add('loading');
+            itemEl.querySelector('.library-item-add').innerText = 'Loading...';
+
+            try {
+                const res = await fetch(`sound-library/${sound.file}`);
+                if (!res.ok) throw new Error('File not found');
+                const arrayBuffer = await res.arrayBuffer();
+
+                audioCtx.decodeAudioData(arrayBuffer, function(decodedBuffer) {
+                    const loopBuffer = crossfadeBuffer(audioCtx, decodedBuffer);
+                    tracks.push({
+                        id: 'lib_' + Date.now(),
+                        name: sound.name,
+                        type: 'user',
+                        volume: 50,
+                        buffer: loopBuffer
+                    });
+                    resetModal();
+                    renderTracks();
+                }, function() {
+                    alert('Could not decode ' + sound.file);
+                    itemEl.classList.remove('loading');
+                    itemEl.querySelector('.library-item-add').innerText = '+ Add';
+                });
+            } catch (e) {
+                alert('Could not load ' + sound.file + ': ' + e.message);
+                itemEl.classList.remove('loading');
+                itemEl.querySelector('.library-item-add').innerText = '+ Add';
+            }
+        }
+
+        // ── Preload default tracks that come from the sound library ───────
+        // These are real audio files that must be fetched + decoded, so this
+        // happens once on page load and the Play button stays disabled until
+        // it's done.
+        async function loadDefaultTrackBuffer(track, onProgress) {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const res = await fetch(`sound-library/${track.file}`);
+            if (!res.ok) throw new Error(`${track.file} not found`);
+
+            // Track real download progress via the response stream so the UI
+            // can show actual bytes-loaded percentage instead of a static label.
+            const total = parseInt(res.headers.get('Content-Length') || '0', 10);
+            let arrayBuffer;
+
+            if (res.body && res.body.getReader) {
+                const reader = res.body.getReader();
+                const chunks = [];
+                let loaded = 0;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    chunks.push(value);
+                    loaded += value.length;
+                    if (onProgress) onProgress(loaded, total);
+                }
+
+                const merged = new Uint8Array(loaded);
+                let offset = 0;
+                for (const chunk of chunks) {
+                    merged.set(chunk, offset);
+                    offset += chunk.length;
+                }
+                arrayBuffer = merged.buffer;
+            } else {
+                // Fallback for browsers without a streamable response body
+                arrayBuffer = await res.arrayBuffer();
+                if (onProgress) onProgress(arrayBuffer.byteLength, arrayBuffer.byteLength);
+            }
+
+            const decodedBuffer = await new Promise((resolve, reject) => {
+                audioCtx.decodeAudioData(arrayBuffer, resolve, reject);
+            });
+            track.buffer = crossfadeBuffer(audioCtx, decodedBuffer);
+        }
+
+        async function loadDefaultSounds() {
+            const pending = tracks.filter(t => t.type === 'user' && !t.buffer && t.file);
+            if (!pending.length) return;
+
+            playBtn.disabled = true;
+            playBtn.innerHTML = 'Loading sounds… 0%';
+
+            // Per-track byte progress, combined into one overall percentage
+            const progressByTrack = {};
+            pending.forEach(t => { progressByTrack[t.id] = { loaded: 0, total: 0 }; });
+
+            function updateOverallProgress() {
+                let loadedSum = 0;
+                let totalSum = 0;
+                let totalsKnown = true;
+
+                pending.forEach(t => {
+                    const p = progressByTrack[t.id];
+                    loadedSum += p.loaded;
+                    if (p.total > 0) {
+                        totalSum += p.total;
+                    } else {
+                        totalsKnown = false;
+                    }
+                });
+
+                if (totalsKnown && totalSum > 0) {
+                    const pct = Math.min(100, Math.round((loadedSum / totalSum) * 100));
+                    playBtn.innerHTML = `Loading sounds… ${pct}%`;
+                } else {
+                    playBtn.innerHTML = 'Loading sounds…';
+                }
+            }
+
+            try {
+                await Promise.all(pending.map(t =>
+                    loadDefaultTrackBuffer(t, (loaded, total) => {
+                        progressByTrack[t.id].loaded = loaded;
+                        progressByTrack[t.id].total = total;
+                        updateOverallProgress();
+                    }).catch(e => console.error('Could not preload', t.file, e))
+                ));
+            } finally {
+                renderTracks();
+                playBtn.disabled = false;
+                playBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Mix';
+            }
+        }
+
+        // ── Open / close modal ────────────────────────────────────────────
+        addTrackBtn.addEventListener('click', () => {
+            initAudio();
+            // Always open on Library tab and (re)load it
+            tabLibrary.click();
+            loadLibrary();
+            uploadModal.classList.add('active');
+            // Move focus into modal for screen readers
+            setTimeout(() => cancelModalBtn.focus(), 50);
+        });
+
+        document.getElementById('cancelModalBtn').addEventListener('click', () => { resetModal(); addTrackBtn.focus(); });
+        document.getElementById('cancelModalBtnUpload').addEventListener('click', () => { resetModal(); addTrackBtn.focus(); });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && uploadModal.classList.contains('active')) {
+                resetModal();
+                addTrackBtn.focus();
+            }
+        });
+
+        // Close modal on overlay backdrop click
+        uploadModal.addEventListener('click', (e) => {
+            if (e.target === uploadModal) { resetModal(); addTrackBtn.focus(); }
+        });
+
+        // ── Upload tab handlers ───────────────────────────────────────────
+        soundFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
+            fileNamePreview.innerText = file.name;
+            fileLabel.textContent = 'Loading...';
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                audioCtx.decodeAudioData(event.target.result, function(decodedBuffer) {
+                    const loopBuffer = crossfadeBuffer(audioCtx, decodedBuffer);
+                    tracks.push({
+                        id: 'user_' + Date.now(),
+                        name: cleanName,
+                        type: 'user',
+                        volume: 50,
+                        buffer: loopBuffer
+                    });
+                    resetModal();
+                    renderTracks();
+                }, function() {
+                    alert('Error decoding the audio file. Please ensure it is a valid audio format.');
+                    fileLabel.textContent = 'Choose MP3 or WAV file';
+                    fileNamePreview.innerText = '';
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function resetModal() {
+            uploadModal.classList.remove('active');
+            soundFile.value = '';
+            fileNamePreview.innerText = '';
+            fileLabel.textContent = 'Choose MP3 or WAV file';
+        }
+
+        // WAV Exporter Engine using OfflineAudioContext
+        exportBtn.addEventListener('click', () => {
+            initAudio();
+            
+            // Check if there is anything to render
+            const activeTracksCount = tracks.filter(t => t.volume > 0 && t.buffer).length;
+            if (activeTracksCount === 0) {
+                alert("Please increase the volume of at least one track to export.");
+                return;
+            }
+
+            const duration = parseInt(durationSlider.value) * 60; // slider is in minutes
+            const doFadeIn  = document.getElementById('fadeInCheck').checked;
+            const doFadeOut = document.getElementById('fadeOutCheck').checked;
+            const MASTER_FADE = Math.min(3.0, duration * 0.1); // 3s or 10% of duration
+
+            exportBtn.disabled = true;
+            exportBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Preparing...';
+            dlProgress.classList.add('visible');
+            dlProgressBar.style.width = '0%';
+            dlProgressLabel.textContent = 'Rendering audio... 0%';
+
+            const sampleRate = 44100;
+            const offlineCtx = new OfflineAudioContext(2, sampleRate * duration, sampleRate);
+
+            // Master gain node for fade in / fade out over the entire mix
+            const masterGain = offlineCtx.createGain();
+            if (doFadeIn) {
+                masterGain.gain.setValueAtTime(0, 0);
+                masterGain.gain.setValueCurveAtTime(FADE_IN_CURVE, 0, MASTER_FADE);
+            } else {
+                masterGain.gain.setValueAtTime(1, 0);
+            }
+            if (doFadeOut) {
+                masterGain.gain.setValueAtTime(1, duration - MASTER_FADE);
+                masterGain.gain.setValueCurveAtTime(FADE_OUT_CURVE, duration - MASTER_FADE, MASTER_FADE);
+            }
+            masterGain.connect(offlineCtx.destination);
+
+            // Reconstruct mixing matrix in the offline environment
+            tracks.forEach(track => {
+                if (track.volume > 0 && track.buffer) {
+                    const gainNode = offlineCtx.createGain();
+                    gainNode.gain.setValueAtTime(track.volume / 100, 0);
+                    gainNode.connect(masterGain);
+
+                    // Schedule overlapping crossfade instances
+                    const clipLen = track.buffer.duration;
+                    const fade = Math.min(CROSSFADE_DURATION, clipLen * 0.4);
+                    const interval = clipLen - fade;
+                    let startAt = 0;
+
+                    while (startAt < duration) {
+                        const src = offlineCtx.createBufferSource();
+                        src.buffer = track.buffer;
+
+                        const instanceGain = offlineCtx.createGain();
+                        instanceGain.gain.setValueAtTime(0, startAt);
+                        instanceGain.gain.setValueCurveAtTime(FADE_IN_CURVE,  startAt, fade);
+                        instanceGain.gain.setValueAtTime(1, startAt + clipLen - fade);
+                        instanceGain.gain.setValueCurveAtTime(FADE_OUT_CURVE, startAt + clipLen - fade, fade);
+
+                        src.connect(instanceGain);
+                        instanceGain.connect(gainNode);
+                        src.start(startAt);
+                        src.stop(Math.min(startAt + clipLen, duration));
+
+                        startAt += interval;
+                    }
+                }
+            });
+
+            // Real progress checkpoints: suspend the offline context at regular
+            // points along the timeline so we can report genuine render progress
+            // instead of an animation that has nowhere to go once it hits a cap.
+            // Rendering is allotted 0-90%; the remaining 10% covers WAV encoding.
+            const PROGRESS_CHECKPOINTS = 60;
+            for (let step = 1; step < PROGRESS_CHECKPOINTS; step++) {
+                const checkpointTime = (duration * step) / PROGRESS_CHECKPOINTS;
+                offlineCtx.suspend(checkpointTime).then(() => {
+                    const pct = Math.round((step / PROGRESS_CHECKPOINTS) * 90);
+                    dlProgressBar.style.width = pct + '%';
+                    dlProgressLabel.textContent = 'Rendering... ' + pct + '%';
+                    offlineCtx.resume();
+                });
+            }
+
+            // Process offline rendering queue
+            offlineCtx.startRendering().then(renderedBuffer => {
+                dlProgressBar.style.width = '90%';
+                dlProgressLabel.textContent = 'Encoding WAV... 0%';
+
+                // Yield to the browser so the 90% state actually paints before
+                // the (now chunked) encoding work begins.
+                setTimeout(() => {
+                    bufferToWavAsync(renderedBuffer, pct => {
+                        const overall = 90 + Math.round(pct * 0.1);
+                        dlProgressBar.style.width = overall + '%';
+                        dlProgressLabel.textContent = 'Encoding WAV... ' + overall + '%';
+                    }).then(wavBlob => {
+                        const url = URL.createObjectURL(wavBlob);
+
+                        const anchor = document.createElement('a');
+                        anchor.style.display = 'none';
+                        anchor.href = url;
+                        const recipeParts = tracks
+                            .filter(t => t.volume > 0 && t.buffer)
+                            .map(t => {
+                                const vol = (t.volume / 100).toFixed(1);
+                                const safeName = t.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                                return `${vol}-${safeName}`;
+                            });
+                        const durationMins = Math.round(duration / 60);
+                        const recipeStr = recipeParts.join('_');
+                        anchor.download = `${recipeStr}_${durationMins}min.wav`;
+                        document.body.appendChild(anchor);
+                        anchor.click();
+
+                        setTimeout(() => {
+                            document.body.removeChild(anchor);
+                            window.URL.revokeObjectURL(url);
+                        }, 100);
+
+                        dlProgress.classList.remove('visible');
+                        exportBtn.disabled = false;
+                        exportBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Export Audio File';
+                    });
+                }, 50);
+            }).catch(err => {
+                alert("Export failed: " + err);
+                dlProgress.classList.remove('visible');
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Export Audio File';
+            });
+        });
+
+        // Stereo AudioBuffer-to-WAV converter utility (RIFF-standard).
+        // Runs in chunks via setTimeout so a multi-hour buffer doesn't lock
+        // up the main thread in one giant synchronous loop, and reports
+        // real progress (0-100) via onProgress as it goes.
+        function bufferToWavAsync(buffer, onProgress) {
+            return new Promise((resolve) => {
+                const numOfChan = buffer.numberOfChannels;
+                const length = buffer.length * numOfChan * 2 + 44;
+                const bufferArr = new ArrayBuffer(length);
+                const view = new DataView(bufferArr);
+                const channels = [];
+                let offset = 0;
+                let pos = 0;
+
+                function setUint16(data) {
+                    view.setUint16(pos, data, true);
+                    pos += 2;
+                }
+
+                function setUint32(data) {
+                    view.setUint32(pos, data, true);
+                    pos += 4;
+                }
+
+                // Write raw RIFF header metadata
+                setUint32(0x46464952); // "RIFF" chunk identity
+                setUint32(length - 8); // chunk size data payload
+                setUint32(0x45564157); // "WAVE" format identifier
+
+                setUint32(0x20746d66); // "fmt " sub-chunk identity
+                setUint32(16);         // Sub-chunk size
+                setUint16(1);          // Audio Format: Linear PCM
+                setUint16(numOfChan);
+                setUint32(buffer.sampleRate);
+                setUint32(buffer.sampleRate * 2 * numOfChan); // byte rate computation
+                setUint16(numOfChan * 2);                    // block boundary offset
+                setUint16(16);                               // bit depth rate (16-bit PCM)
+
+                setUint32(0x61746164); // "data" chunk identity
+                setUint32(length - pos - 4);
+
+                for (let i = 0; i < numOfChan; i++) {
+                    channels.push(buffer.getChannelData(i));
+                }
+
+                const totalFrames = buffer.length;
+                // Tuned so each chunk is a small, sub-frame slice of work -
+                // big enough to be efficient, small enough to stay responsive.
+                const FRAMES_PER_CHUNK = 500000;
+
+                function processChunk() {
+                    const chunkEnd = Math.min(offset + FRAMES_PER_CHUNK, totalFrames);
+                    while (offset < chunkEnd) {
+                        for (let i = 0; i < numOfChan; i++) {
+                            let sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp sample boundaries
+                            sample = (sample < 0 ? sample * 0x8000 : sample * 0x7FFF); // conversion formula to Int16
+                            view.setInt16(pos, sample, true);
+                            pos += 2;
+                        }
+                        offset++;
+                    }
+
+                    if (onProgress) {
+                        onProgress(Math.round((offset / totalFrames) * 100));
+                    }
+
+                    if (offset < totalFrames) {
+                        setTimeout(processChunk, 0); // yield back to the browser
+                    } else {
+                        resolve(new Blob([bufferArr], { type: "audio/wav" }));
+                    }
+                }
+
+                processChunk();
+            });
+        }
+
+
+        // Execute initial UI assembly
+        renderTracks();
+        loadDefaultSounds();
+    </script>
+</body>
+</html>
