@@ -38,6 +38,12 @@ https://noiseforsleep.com/
 
 ## Revision History
 
+Version 2.0<br>
+18-June-2026<br>
+- Added a sound mixer to create custom soundscapes.
+- Added a sound library.
+- Added support for the user to upload sound files to use when mixing.
+
 Version 1.0<br>
 15-June-2026<br>
 First release.
