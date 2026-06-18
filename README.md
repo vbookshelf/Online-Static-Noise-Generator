@@ -36,6 +36,16 @@ https://noiseforsleep.com/
 
 <br>
 
+<img src="images/image5.png" alt="App screenshot" width="800">
+<p>Sound Mixer</p>
+
+<br>
+
+<img src="images/image6.png" alt="App screenshot" width="800">
+<p>Sound library and support for sound file uploads</p>
+
+<br>
+
 ## Revision History
 
 Version 2.0<br>
