@@ -13,6 +13,7 @@ https://noiseforsleep.com/
 - Six noise options - white, pink brown, grey, green, ocean and fan.
 - If you want other noise types, simply download this code, then use AI to modify the index.html file to generate the noise type or colour you want.
 - Create your own sound mixes using sounds from the sound library or use your own uploaded sounds.
+- The sound library includes soothing sounds like Ocean Waves and Steady Rain.
 - All processing is done locally, in the browser. No files are uploaded to an external server.
 - Free and Open Source.
 
