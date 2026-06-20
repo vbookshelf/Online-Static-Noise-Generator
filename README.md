@@ -17,6 +17,8 @@ https://noiseforsleep.com/
 - All processing is done locally, in the browser. No files are uploaded to an external server.
 - Free and Open Source.
 
+Feel free to share your thoughts and suggestions in the discussion forum above.
+
 <br>
 
 <img src="images/image4.png" alt="App screenshot" width="300">
