@@ -1,4 +1,4 @@
-# Online Static Noise Generator
+# Static Noise Generator and Ambiance Sound Mixer
 A web based static noise machine to create different colors of static noise algorithmically on the fly, and mix custom ambiance soundscapes. Static noise is used for sleep, relaxation and focus. It's also used for ADHD and Tinnitus support.
 
 <b>Noise for Sleep</b><br>
