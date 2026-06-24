@@ -15,6 +15,7 @@ https://noiseforsleep.com/
 - Create your own sound mixes using sounds from the sound library or use your own uploaded sounds.
 - The sound library includes soothing sounds like Ocean Waves and Steady Rain.
 - All processing is done locally, in the browser. No files are uploaded to an external server.
+- No Monetization/Dark Patterns - no advertisements, cookies, hidden tracking pixels, premium upgrades, or sign-up walls.
 - Free and Open Source.
 
 Feel free to share your thoughts and suggestions in the discussion forum above.
